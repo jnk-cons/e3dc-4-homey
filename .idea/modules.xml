@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/de.jnkconsulting.e3dc.v2.iml" filepath="$PROJECT_DIR$/.idea/de.jnkconsulting.e3dc.v2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../homey/de.jnkconsulting.smart.liquidcheck/.idea/de.jnkconsulting.smart.liquidcheck.iml" filepath="$PROJECT_DIR$/../../homey/de.jnkconsulting.smart.liquidcheck/.idea/de.jnkconsulting.smart.liquidcheck.iml" />
     </modules>
   </component>
 </project>
