@@ -1,0 +1,19 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Self-sufficient",
+    "de": "Autarkie"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "%",
+    "de": "%"
+  },
+  "icon": "/assets/images/percentage.svg",
+  "insights": true,
+  "decimals": 0,
+  "min": 0,
+  "max": 100
+}

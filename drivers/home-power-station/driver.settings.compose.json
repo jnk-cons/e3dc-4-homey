@@ -1,0 +1,78 @@
+[
+  {
+    "type": "group",
+    "label": {
+      "en": "Connection data",
+      "de": "Verbindungsdaten"
+    },
+    "children": [
+      {
+        "id": "portalUsername",
+        "type": "text",
+        "label": {
+          "en": "Portal username",
+          "de": "Portal Benutzer"
+        },
+        "value": "",
+        "hint": {
+          "en": "Username of your E3DC portal user",
+          "de": "Benutzername deines E3DC Portal Users"
+        }
+      },
+      {
+        "id": "portalPassword",
+        "type": "password",
+        "label": {
+          "en": "Portal password",
+          "de": "Portal Passwort"
+        },
+        "value": "",
+        "hint": {
+          "en": "Passwort zum E3DC Portal",
+          "de": "Passwort zum E3DC Portal"
+        }
+      },
+      {
+        "id": "rscpKey",
+        "type": "password",
+        "label": {
+          "en": "RSCP Passwort",
+          "de": "RSCP password"
+        },
+        "value": "",
+        "hint": {
+          "en": "Password of the RSCP connection as entered on the home power station",
+          "de": "Passwort der RSCP Verbindung, wie es am Hauskraftwerk eingetragen wurde"
+        }
+      },
+      {
+        "id": "stationAddress",
+        "type": "text",
+        "label": {
+          "en": "IP",
+          "de": "IP"
+        },
+        "value": "",
+        "hint": {
+          "en": "IP address of the home power station",
+          "de": "IP Adresse des Hauskraftwerks"
+        }
+      },
+      {
+        "id": "stationPort",
+        "type": "number",
+        "label": {
+          "en": "Port",
+          "de": "Port"
+        },
+        "value": 5022,
+        "min": 0,
+        "max": 65535,
+        "hint": {
+          "en": "Port of the home power station (should be 5033, or 5034 for farming)",
+          "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
+        }
+      }
+    ]
+  }
+]

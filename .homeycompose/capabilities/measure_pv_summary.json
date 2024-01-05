@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "PV",
+    "de": "PV"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/solar.svg",
+  "insights": false,
+  "decimals": 1
+}

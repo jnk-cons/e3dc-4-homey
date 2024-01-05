@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Power purchase",
+    "de": "Bezug"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/grid-receive.svg",
+  "insights": true,
+  "decimals": 1
+}

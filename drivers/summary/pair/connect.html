@@ -1,0 +1,49 @@
+<script type="application/javascript">
+
+  Homey.setTitle(Homey.__('setup.main'))
+
+  Homey.emit("getSettings").then(function (typeIndex) {
+      if (typeIndex && typeIndex > -1){
+          document.getElementById('summaryType').selectedIndex = typeIndex
+      }
+  });
+
+  function readInputs() {
+    return document.getElementById('summaryType').selectedIndex
+  }
+
+  function settingsChanged(){
+      let value = readInputs();
+      Homey.emit("settingsChanged", value).then(function (result) {});
+  }
+
+</script>
+<style>
+    #connection {
+        font-family: sans-serif;
+    }
+</style>
+
+<div id="connection">
+    <header class="homey-header">
+        <h1 class="homey-title" data-i18n="setup.summary.title"></h1>
+    </header>
+    <form class="homey-form">
+        <fieldset class="homey-form-fieldset">
+            <div class="homey-form-group">
+                <span data-i18n="setup.summary.info"></span>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="summaryType"><span data-i18n="setup.summary.field.type">Bereich</span></label>
+                <select id="summaryType" class="homey-form-select" onchange="settingsChanged()">
+                    <option value="YESTERDAY" data-i18n="area.YESTERDAY">YESTERDAY</option>
+                    <option value="TODAY" data-i18n="area.TODAY">TODAY</option>
+                    <option value="LAST_MONTH" data-i18n="area.LAST_MONTH">LAST_MONTH</option>
+                    <option value="CURRENT_MONTH" data-i18n="area.CURRENT_MONTH">CURRENT_MONTH</option>
+                    <option value="LAST_YEAR" data-i18n="area.LAST_YEAR">LAST_YEAR</option>
+                    <option value="CURRENT_YEAR" data-i18n="area.CURRENT_YEAR">CURRENT_YEAR</option>
+                </select>
+            </div>
+        </fieldset>
+    </form>
+</div>

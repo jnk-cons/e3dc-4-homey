@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Range",
+    "de": "Bereich"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/date-range.svg",
+  "insights": false
+}

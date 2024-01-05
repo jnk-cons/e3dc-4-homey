@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Feed-in",
+    "de": "Einspeisung"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/grid-feedin.svg",
+  "insights": true,
+  "decimals": 1
+}

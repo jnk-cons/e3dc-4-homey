@@ -1,0 +1,82 @@
+<script type="application/javascript">
+
+  Homey.setTitle(Homey.__('setup.main'))
+
+  Homey.emit("getSettings").then(function (settings) {
+      if (settings){
+          document.getElementById('portaluser').value = settings.portalUsername;
+          document.getElementById('portalpassword').value = settings.portalPassword;
+          document.getElementById('rscpkey').value = settings.rscpKey;
+          document.getElementById('address').value = settings.stationAddress;
+          document.getElementById('port').value = settings.stationPort;
+      }
+  });
+
+  function readInputs() {
+    return {
+        portalUsername:  document.getElementById('portaluser').value,
+        portalPassword: document.getElementById('portalpassword').value,
+        rscpKey: document.getElementById('rscpkey').value,
+        stationAddress: document.getElementById('address').value,
+        stationPort: document.getElementById('port').value,
+      };
+  }
+
+  function settingsChanged(){
+      let value = readInputs();
+      Homey.emit("settingsChanged", value).then(function (result) {});
+  }
+
+  function checkConnection(){
+      document.getElementById('check').classList.add('is-loading');
+      let value = readInputs();
+      Homey.emit("checkConnection", value).then(function (result) {
+          document.getElementById('check').classList.remove('is-loading');
+          Homey.alert(result);
+      })
+  }
+
+</script>
+<style>
+    #connection {
+        font-family: sans-serif;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+<div id="connection">
+    <header class="homey-header">
+        <h1 class="homey-title" data-i18n="setup.title"></h1>
+    </header>
+    <form class="homey-form">
+        <fieldset class="homey-form-fieldset">
+            <div class="homey-form-group">
+                <span data-i18n="setup.rscp-info"></span>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="portaluser"><span data-i18n="setup.field.portal-username.title">Portal User</span></label>
+                <input class="homey-form-input" id="portaluser" type="text" value="" oninput="settingsChanged()"/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="portalpassword"><span data-i18n="setup.field.portal-password.title">Portal Passwort</span></label>
+                <input class="homey-form-input" id="portalpassword" type="password" value="" oninput="settingsChanged()"/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="rscpkey"><span data-i18n="setup.field.rscp-key.title">RSCP Key</span></label>
+                <input class="homey-form-input" id="rscpkey" type="password" value="" oninput="settingsChanged()"/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="address"><span data-i18n="setup.field.station-address.title">IP</span></label>
+                <input class="homey-form-input" id="address" type="text" value="" oninput="settingsChanged()"/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="port"><span data-i18n="setup.field.station-port.title">Port</span></label>
+                <input class="homey-form-input" id="port" type="number" value="" oninput="settingsChanged()"/>
+            </div>
+        </fieldset>
+    </form>
+    <button class="homey-button-secondary-shadow left" id="check" style="margin-top: 16px" onclick="checkConnection()"><span data-i18n="setup.check">Check</span></button>
+</div>

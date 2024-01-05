@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "House consumption",
+    "de": "Hausverbrauch"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/home.svg",
+  "insights": true,
+  "decimals": 1
+}

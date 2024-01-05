@@ -1,0 +1,29 @@
+{
+  "id": "de.jnkconsulting.e3dc.v2",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "E3DC - HPS",
+    "de": "E3DC - HKW"
+  },
+  "description": {
+    "en": "Adds support for E3DC Home power stations"
+  },
+  "category": [
+    "energy"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Jochen Zink",
+    "email": "jochen@jzink.de"
+  }
+}

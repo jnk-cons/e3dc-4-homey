@@ -1,0 +1,45 @@
+{
+  "setup": {
+    "main": "E3DC Home power station",
+    "title": "Connection data",
+    "field": {
+      "portal-username": {
+        "title": "Portal username"
+      },
+      "portal-password": {
+        "title": "Portal password"
+      },
+      "rscp-key": {
+        "title": "RSCP password"
+      },
+      "station-address": {
+        "title": "IP"
+      },
+      "station-port": {
+        "title": "Port"
+      }
+    },
+    "rscp-info": "ATTENTION: The RSCP connection must first be activated on the home power station. To do this, go to the \"Main menu\", \"Personalization\", \"User profile\". There you can set the RSCP password on the second page and thus activate access.",
+    "connection-test": {
+      "success": "Successful",
+      "failed": "Not successful",
+      "failed-detail": "Not successful: __detail__"
+    },
+    "summary": {
+      "info": "This device displays the HPS data over the selected time period",
+      "title": "Overview",
+      "field": {
+        "type": "Range"
+      }
+    }
+  },
+  "please-wait": "Please wait",
+  "area": {
+    "YESTERDAY": "Yesterday",
+    "TODAY":"Today",
+    "CURRENT_MONTH": "Current month",
+    "LAST_MONTH":"Last month",
+    "CURRENT_YEAR": "Current year",
+    "LAST_YEAR":"Last year"
+  }
+}

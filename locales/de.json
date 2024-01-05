@@ -1,0 +1,47 @@
+{
+  "setup": {
+    "main": "E3DC Hauskraftwerk",
+    "title": "Verbindungsdaten",
+    "field": {
+      "portal-username": {
+        "title": "Portal Benutzer"
+      },
+      "portal-password": {
+        "title": "Portal Passwort"
+      },
+      "rscp-key": {
+        "title": "RSCP Passwort"
+      },
+      "station-address": {
+        "title": "IP"
+      },
+      "station-port": {
+        "title": "Port"
+      }
+    },
+    "rscp-info": "ACHTUNG: Die RSCP Verbindung muss an dem Hauskraftwerk erst freigeschaltet werden. Geht dazu ins \"Hautmenü\", \"Personalisierung\", \"Benutzerprofil\". Dort kann auf der zweiten Seite das RSCP Passwort gesetzt und damit der Zugang freigeschaltet werden.",
+    "connection-test": {
+      "success": "Erfolgreich",
+      "failed": "Nicht erfolgreich",
+      "failed-detail": "Nicht erfolgreich: __detail__"
+    },
+    "summary": {
+      "info": "Dieses Device zeigt die HKW Daten über den gewählten Zeitraum an",
+      "title": "Übersicht",
+      "field": {
+        "type": "Bereich"
+      }
+    }
+  },
+  "please-wait": "Bitte warten",
+  "area": {
+    "YESTERDAY": "Gestern",
+    "TODAY":"Heute",
+    "CURRENT_WEEK": "Aktuelle Woche",
+    "LAST_WEEK":"Letze Woche",
+    "CURRENT_MONTH": "Aktueller Monat",
+    "LAST_MONTH":"Letzter Monat",
+    "CURRENT_YEAR": "Aktuelles Jahr",
+    "LAST_YEAR":"Letztes Jahr"
+  }
+}

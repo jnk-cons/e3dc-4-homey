@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "PV power",
+    "de": "PV Leistung"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "W",
+    "de": "W"
+  },
+  "icon": "/assets/images/solar.svg",
+  "insights": true,
+  "decimals": 2
+}

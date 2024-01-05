@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Battery discharged",
+    "de": "Batterie entladen"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/battery-unload.svg",
+  "insights": true,
+  "decimals": 1
+}

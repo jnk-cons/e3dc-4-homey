@@ -1,0 +1,439 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "de.jnkconsulting.e3dc.v2",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "E3DC - HPS",
+    "de": "E3DC - HKW"
+  },
+  "description": {
+    "en": "Adds support for E3DC Home power stations"
+  },
+  "category": [
+    "energy"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Jochen Zink",
+    "email": "jochen@jzink.de"
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "HPS",
+        "de": "HKW"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_pv_delivery",
+        "measure_grid_delivery",
+        "measure_battery_delivery",
+        "measure_house_consumption",
+        "measure_battery"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/home-power-station/assets/images/small.png",
+        "large": "/drivers/home-power-station/assets/images/large.png",
+        "xlarge": "/drivers/home-power-station/assets/images/xlarge.png"
+      },
+      "energy": {
+        "batteries": [
+          "INTERNAL"
+        ]
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_my_devices"
+          }
+        },
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "connect"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "home-power-station",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection data",
+            "de": "Verbindungsdaten"
+          },
+          "children": [
+            {
+              "id": "portalUsername",
+              "type": "text",
+              "label": {
+                "en": "Portal username",
+                "de": "Portal Benutzer"
+              },
+              "value": "",
+              "hint": {
+                "en": "Username of your E3DC portal user",
+                "de": "Benutzername deines E3DC Portal Users"
+              }
+            },
+            {
+              "id": "portalPassword",
+              "type": "password",
+              "label": {
+                "en": "Portal password",
+                "de": "Portal Passwort"
+              },
+              "value": "",
+              "hint": {
+                "en": "Passwort zum E3DC Portal",
+                "de": "Passwort zum E3DC Portal"
+              }
+            },
+            {
+              "id": "rscpKey",
+              "type": "password",
+              "label": {
+                "en": "RSCP Passwort",
+                "de": "RSCP password"
+              },
+              "value": "",
+              "hint": {
+                "en": "Password of the RSCP connection as entered on the home power station",
+                "de": "Passwort der RSCP Verbindung, wie es am Hauskraftwerk eingetragen wurde"
+              }
+            },
+            {
+              "id": "stationAddress",
+              "type": "text",
+              "label": {
+                "en": "IP",
+                "de": "IP"
+              },
+              "value": "",
+              "hint": {
+                "en": "IP address of the home power station",
+                "de": "IP Adresse des Hauskraftwerks"
+              }
+            },
+            {
+              "id": "stationPort",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "de": "Port"
+              },
+              "value": 5022,
+              "min": 0,
+              "max": 65535,
+              "hint": {
+                "en": "Port of the home power station (should be 5033, or 5034 for farming)",
+                "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "HPS - Statistics",
+        "de": "HKW - Statistiken"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "date_range",
+        "measure_pv_summary",
+        "measure_house_consumption_summary",
+        "measure_grid_in",
+        "measure_grid_out",
+        "measure_battery_in",
+        "measure_battery_out",
+        "measure_autarky",
+        "measure_self_consumption"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/summary/assets/images/small.png",
+        "large": "/drivers/summary/assets/images/large.png",
+        "xlarge": "/drivers/summary/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_my_devices"
+          }
+        },
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "connect"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "summary"
+    }
+  ],
+  "capabilities": {
+    "date_range": {
+      "type": "string",
+      "title": {
+        "en": "Range",
+        "de": "Bereich"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/date-range.svg",
+      "insights": false
+    },
+    "measure_autarky": {
+      "type": "number",
+      "title": {
+        "en": "Self-sufficient",
+        "de": "Autarkie"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "%",
+        "de": "%"
+      },
+      "icon": "/assets/images/percentage.svg",
+      "insights": true,
+      "decimals": 0,
+      "min": 0,
+      "max": 100
+    },
+    "measure_battery_delivery": {
+      "type": "number",
+      "title": {
+        "en": "Battery power",
+        "de": "Batterie Leistung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/battery.svg",
+      "insights": true,
+      "decimals": 2
+    },
+    "measure_battery_in": {
+      "type": "number",
+      "title": {
+        "en": "Battery charged",
+        "de": "Batterie geladen"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/battery-load.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_battery_out": {
+      "type": "number",
+      "title": {
+        "en": "Battery discharged",
+        "de": "Batterie entladen"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/battery-unload.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_grid_delivery": {
+      "type": "number",
+      "title": {
+        "en": "Grid power",
+        "de": "Netz Leistung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/grid.svg",
+      "insights": true,
+      "decimals": 2
+    },
+    "measure_grid_in": {
+      "type": "number",
+      "title": {
+        "en": "Feed-in",
+        "de": "Einspeisung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/grid-feedin.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_grid_out": {
+      "type": "number",
+      "title": {
+        "en": "Power purchase",
+        "de": "Bezug"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/grid-receive.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_house_consumption": {
+      "type": "number",
+      "title": {
+        "en": "House consumption",
+        "de": "Hausverbrauch"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/home.svg",
+      "insights": true,
+      "decimals": 2
+    },
+    "measure_house_consumption_summary": {
+      "type": "number",
+      "title": {
+        "en": "House consumption",
+        "de": "Hausverbrauch"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/home.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_pv_delivery": {
+      "type": "number",
+      "title": {
+        "en": "PV power",
+        "de": "PV Leistung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/solar.svg",
+      "insights": true,
+      "decimals": 2
+    },
+    "measure_pv_summary": {
+      "type": "number",
+      "title": {
+        "en": "PV",
+        "de": "PV"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/solar.svg",
+      "insights": false,
+      "decimals": 1
+    },
+    "measure_self_consumption": {
+      "type": "number",
+      "title": {
+        "en": "Self consumption",
+        "de": "Eigenverbrauch"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "%",
+        "de": "%"
+      },
+      "icon": "/assets/images/percentage.svg",
+      "insights": true,
+      "decimals": 0,
+      "min": 0,
+      "max": 100
+    }
+  }
+}
