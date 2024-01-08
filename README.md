@@ -17,4 +17,4 @@ And the best thing about it? The communication between the home power station an
 2. Select "Personalize"
 3. Seect "Profile"
 4. Scroll down and set a RSCP Password
-5. Thats it
+5. That's it

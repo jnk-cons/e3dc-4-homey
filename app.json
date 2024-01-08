@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -13,8 +13,8 @@
     "de": "E3DC - HKW"
   },
   "description": {
-    "en": "Adds support for E3DC Home power stations",
-    "de": "Fügt Unterstützung für die Hauskraftwerke von E3DC hinzu"
+    "en": "Manage your solar power",
+    "de": "Verwalte deinen Solarstrom"
   },
   "category": [
     "energy"
