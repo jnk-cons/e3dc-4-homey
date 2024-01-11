@@ -4,4 +4,5 @@ export interface LiveData {
     batteryDelivery: number
     houseConsumption: number
     batteryChargingLevel: number
+    firmwareVersion: string
 }

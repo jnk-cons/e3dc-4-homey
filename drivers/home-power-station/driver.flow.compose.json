@@ -1,0 +1,33 @@
+{
+  "triggers": [
+    {
+      "id": "firmware_has_changed",
+      "title": {
+        "de": "Firmware wurde aktualisiert",
+        "en": "Firmware has been updated"
+      },
+      "tokens": [
+        {
+          "name": "old firmware version",
+          "type": "string",
+          "title": {
+            "de": "Alte Firmware",
+            "en": "Old firmware"
+          }
+        },
+        {
+          "name": "new firmware version",
+          "type": "string",
+          "title": {
+            "de": "Neue Firmware",
+            "en": "New firmware"
+          }
+        }
+      ],
+      "hint": {
+        "de": "Wird ausgelöst, sobald eine neue Firmwareversion auf dem Hauskraftwerk installiert wurde",
+        "en": "Is triggered as soon as a new firmware version has been installed on the home power station"
+      }
+    }
+  ]
+}

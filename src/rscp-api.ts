@@ -9,7 +9,7 @@ import {
     Frame,
     FrameBuilder, HistoryData,
     HomePowerPlantConnection,
-    HomePowerPlantConnectionFactory, MonthlySummaryConverter, YearlySummaryConverter
+    HomePowerPlantConnectionFactory, InfoTag, MonthlySummaryConverter, YearlySummaryConverter
 } from 'easy-rscp';
 import {LiveData} from './model/live-data';
 import {SyncDataFrameConverter} from './converter/SyncDataFrameConverter';
@@ -247,7 +247,8 @@ export class RscpApi {
                             new DataBuilder().tag(EMSTag.REQ_POWER_BAT).build(),
                             new DataBuilder().tag(EMSTag.REQ_POWER_GRID).build(),
                             new DataBuilder().tag(EMSTag.REQ_POWER_HOME).build(),
-                            new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build()
+                            new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build(),
+                            new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build()
                         )
                         .build();
                     log.log('readSyncData: Sending request frame ...')

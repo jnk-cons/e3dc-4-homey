@@ -1,4 +1,4 @@
-import {EMSTag, Frame, FrameConverter} from 'easy-rscp';
+import {EMSTag, Frame, FrameConverter, InfoTag} from 'easy-rscp';
 import {LiveData} from '../model/live-data';
 
 export class SyncDataFrameConverter implements FrameConverter<LiveData> {
@@ -9,6 +9,7 @@ export class SyncDataFrameConverter implements FrameConverter<LiveData> {
             batteryDelivery: frame.numberByTag(EMSTag.POWER_BAT) * -1,
             houseConsumption: frame.numberByTag(EMSTag.POWER_HOME),
             batteryChargingLevel: frame.numberByTag(EMSTag.BAT_SOC) / 100.0,
+            firmwareVersion: frame.stringByTag(InfoTag.SW_RELEASE)
         }
     }
 

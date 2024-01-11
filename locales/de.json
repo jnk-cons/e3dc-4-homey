@@ -43,5 +43,9 @@
     "LAST_MONTH":"Letzter Monat",
     "CURRENT_YEAR": "Aktuelles Jahr",
     "LAST_YEAR":"Letztes Jahr"
+  },
+  "messages": {
+    "hps-not-available": "Fehler beim Zugriff auf das Hauskraftwerk. Überprüfe die Verbindungseinstellungen.",
+    "hps-device-not-found": "Das Homey device des Hauskraftwerks wurde entfernt. Füge das Statistik Device neu hinzu."
   }
 }
