@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -40,6 +40,46 @@
       }
     }
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "firmware_has_changed",
+        "title": {
+          "de": "Firmware wurde aktualisiert",
+          "en": "Firmware has been updated"
+        },
+        "tokens": [
+          {
+            "name": "old firmware version",
+            "type": "string",
+            "title": {
+              "de": "Alte Firmware",
+              "en": "Old firmware"
+            }
+          },
+          {
+            "name": "new firmware version",
+            "type": "string",
+            "title": {
+              "de": "Neue Firmware",
+              "en": "New firmware"
+            }
+          }
+        ],
+        "hint": {
+          "de": "Wird ausgelöst, sobald eine neue Firmwareversion auf dem Hauskraftwerk installiert wurde",
+          "en": "Is triggered as soon as a new firmware version has been installed on the home power station"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {
@@ -52,7 +92,8 @@
         "measure_grid_delivery",
         "measure_battery_delivery",
         "measure_house_consumption",
-        "measure_battery"
+        "measure_battery",
+        "firmware_version"
       ],
       "platforms": [
         "local"
@@ -238,6 +279,18 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/images/date-range.svg",
+      "insights": false
+    },
+    "firmware_version": {
+      "type": "string",
+      "title": {
+        "en": "Firmware",
+        "de": "Firmware"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/info.svg",
       "insights": false
     },
     "measure_autarky": {

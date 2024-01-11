@@ -41,5 +41,9 @@
     "LAST_MONTH":"Last month",
     "CURRENT_YEAR": "Current year",
     "LAST_YEAR":"Last year"
+  },
+  "messages": {
+    "hps-not-available": "Error accessing the home power station. Check the connection settings.",
+    "hps-device-not-found": "The Homey device of the home power station has been removed. Add the statistic device again."
   }
 }

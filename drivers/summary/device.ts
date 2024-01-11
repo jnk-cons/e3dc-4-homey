@@ -5,12 +5,14 @@ import {updateCapabilityValue} from '../../src/utils/capability-utils';
 import {clearInterval} from 'timers';
 import {getTypeName} from '../../src/utils/i18n-utils';
 
-// const SYNC_INTERVAL = 1000 * 60 * 5; // 5 min
-const SYNC_INTERVAL = 1000 * 20; // 20 sec
+const SYNC_INTERVAL = 1000 * 60 * 5; // 5 min
+// const SYNC_INTERVAL = 1000 * 20; // 20 sec
+const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
 
 class SummaryDevice extends Homey.Device {
 
   private loopId: NodeJS.Timeout |null = null
+  private syncErrorCount: number = 0
 
   async onInit() {
     this.log('SummaryDevice has been initialized');
@@ -54,17 +56,28 @@ class SummaryDevice extends Homey.Device {
               updateCapabilityValue('measure_self_consumption', result.selfConsumption * 100, this)
               updateCapabilityValue('measure_autarky', result.selfSufficiency * 100, this)
               this.log(result)
+
+              this.syncErrorCount = 0
+              if (!this.getAvailable()) {
+                this.setAvailable().then()
+              }
+
               resolve(undefined)
             })
             .catch(e => {
               this.error('error reading summary data')
               this.error(e)
+              this.syncErrorCount++
+              if (this.syncErrorCount >= MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE) {
+                this.setUnavailable(this.homey.__('messages.hps-not-available')).then()
+              }
               resolve(undefined)
             })
 
       }
       else {
         this.error('Station with id ' + stationId + ' not found. Sync will fail')
+        this.setUnavailable(this.homey.__('messages.hps-device-not-found')).then()
         resolve(undefined)
       }
     })

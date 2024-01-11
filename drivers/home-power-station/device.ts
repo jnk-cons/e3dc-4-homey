@@ -1,4 +1,4 @@
-import Homey from 'homey';
+import Homey, {FlowCardTriggerDevice} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
 import {E3dcConnectionData, StringFrameConverter} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
@@ -8,13 +8,18 @@ import {clearInterval} from 'timers';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
-
+const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
 class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
+
+  private firmwareChangedCard: FlowCardTriggerDevice | null = null;
 
   private loopId: NodeJS.Timeout |null = null
   private api: RscpApi | undefined = undefined
+  private syncErrorCount: number = 0
   async onInit() {
     this.log('HomePowerStationDevice has been initialized');
+
+    this.firmwareChangedCard = this.homey.flow.getDeviceTriggerCard('firmware_has_changed')
 
     setTimeout(() => {
       this.startAutoSync()
@@ -62,28 +67,41 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
             updateCapabilityValue('measure_battery_delivery', result.batteryDelivery, this)
             updateCapabilityValue('measure_house_consumption', result.houseConsumption, this)
             updateCapabilityValue('measure_battery', result.batteryChargingLevel * 100, this)
+            const firmwareChange = updateCapabilityValue('firmware_version', result.firmwareVersion, this)
+            if (firmwareChange && firmwareChange.oldValue != null) {
+              const tokens = {
+                'old firmware version': firmwareChange.oldValue,
+                'new firmware version': firmwareChange.newValue
+              }
+              this.log('Firmware change detected. Triggering firmware changed card')
+              this.firmwareChangedCard?.trigger(this, tokens).then(this.log).catch(this.error)
+            }
 
             this.log(result)
-
+            this.syncErrorCount = 0
+            if (!this.getAvailable()) {
+              this.setAvailable().then()
+            }
             resolve(undefined)
           })
           .catch(e => {
             this.error('Error reading live data')
             this.error(e)
+            this.syncErrorCount++
+            if (this.syncErrorCount >= MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE) {
+              this.setUnavailable(this.homey.__('messages.hps-not-available')).then()
+            }
             resolve(undefined)
           })
     })
 
   }
 
-
   async onAdded() {
     this.log('HomePowerStationDevice has been added');
     const storedSettings: PowerStationConfig = this.getStoreValue('settings')
     await this.setSettings(storedSettings)
     await this.unsetStoreValue('settings')
-
-
   }
 
 

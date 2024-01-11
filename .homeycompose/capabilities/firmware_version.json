@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Firmware",
+    "de": "Firmware"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/info.svg",
+  "insights": false
+}
