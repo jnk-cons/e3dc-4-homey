@@ -1,9 +1,10 @@
 import Homey, {FlowCardTriggerDevice} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
-import {E3dcConnectionData} from 'easy-rscp';
+import {E3dcConnectionData, ResultCode} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
 import {HomePowerStation} from '../../src/model/home-power-station';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
+import {getResultCode} from '../../src/utils/i18n-utils';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
@@ -22,6 +23,87 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     setTimeout(() => {
       this.autoSync()
     }, 2000)
+
+    this.setupActionCards()
+  }
+
+  private setupActionCards() {
+    this.setupConfigureMaxChargingLimigActionCard()
+  }
+
+  private setupConfigureMaxChargingLimigActionCard() {
+    const card = this.homey.flow.getActionCard("configure_max_charging_power")
+    card.registerRunListener(async (args, state) => {
+      return new Promise<any>(async (resolve, reject) => {
+        const device: HomePowerStationDevice = args.device;
+        const value: number = args.limit
+        const unit: CardUnit = args.unit
+        device.log('Starting card to configure the max charging power to ' + value + ' ' + unit)
+        const validationResult = device.validateUnit(value, unit)
+        if (validationResult) {
+          device.log('Rejected max charging power configuration: ' + validationResult)
+          reject(validationResult)
+        }
+        else {
+          let requestedWattLimit = value
+          device.getApi().readChargingConfiguration(true, device)
+              .then(config => {
+                if (unit == CardUnit.PERCENTAGE) {
+                  requestedWattLimit = (value / 100.0) * config.maxPossibleChargingPower
+                }
+
+                device.log('Max charging power should be ' + requestedWattLimit + ' Watt. Checking if the HPS can handle this ...')
+                if (requestedWattLimit > config.maxPossibleChargingPower) {
+                  device.log('Rejected max charging power configuration. Requested value is higher than the allowed max of the HPS. Requested: ' + requestedWattLimit + ', HPS-max: ' + config.maxPossibleChargingPower)
+                  reject(this.homey.__('messages.requested-max-charging-power-to-high', {REQUESTED: requestedWattLimit, MAX: config.maxPossibleChargingPower}))
+                }
+                else if (requestedWattLimit < config.minPossibleChargingPower) {
+                  device.log('Rejected max charging power configuration. Requested value is lower than the allowed min of the HPS. Requested: ' + requestedWattLimit + ', HPS-min: ' + config.minPossibleChargingPower)
+                  reject(this.homey.__('messages.requested-max-charging-power-to-low', {REQUESTED: requestedWattLimit, MIN: config.minPossibleChargingPower}))
+                }
+                else {
+                  const limits = config.currentLimitations
+                  limits.chargingLimitationsEnabled = true
+                  limits.maxCurrentChargingPower = requestedWattLimit
+
+                  device.getApi().writeChargingLimits(limits, true, device)
+                      .then(result => {
+                        if (result.maxCurrentChargingPower == ResultCode.SUCCESS) {
+                          device.log('Max allowed charging power configured')
+                          resolve(undefined)
+                        }
+                        else {
+                          device.error('Failed to configure max allowed charging power: ResultCode=' + result.maxCurrentChargingPower)
+                          reject(device.homey.__('messages.requested-max-charging-power-denied-by-hps', {RESULTCODE: getResultCode(result.maxCurrentChargingPower, device.homey)}))
+                        }
+                      })
+                      .catch(e => {
+                        device.error('Writing charging limits failed: ' + e)
+                        device.error(e)
+                        reject(e)
+                      })
+                }
+
+              })
+              .catch(e => {
+                device.error('Reading charging configuration failed: ' + e)
+                device.error(e)
+                reject(e)
+              })
+        }
+      })
+    })
+  }
+
+  private validateUnit(value: number, unit: CardUnit): string | undefined {
+    if (unit == CardUnit.PERCENTAGE && value > 100) {
+      return this.homey.__('messages.invalid-percentage')
+    }
+    if (value < 0) {
+      return this.homey.__('messages.to-low-limit"')
+    }
+
+    return undefined
   }
 
   private autoSync() {
@@ -140,6 +222,11 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     new RscpApi().closeConnection(this).then()
   }
 
+}
+
+enum CardUnit {
+  WATT = 'w',
+  PERCENTAGE = 'percentage'
 }
 
 module.exports = HomePowerStationDevice;

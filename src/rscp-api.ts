@@ -1,4 +1,7 @@
 import {
+    ChargingConfiguration,
+    ChargingConfigurationConverter,
+    ChargingLimits,
     DailySummaryConverter,
     DataBuilder,
     DBTag,
@@ -7,9 +10,17 @@ import {
     E3dcConnectionData,
     EMSTag,
     Frame,
-    FrameBuilder, HistoryData,
+    FrameBuilder,
+    HistoryData,
     HomePowerPlantConnection,
-    HomePowerPlantConnectionFactory, InfoTag, MonthlySummaryConverter, YearlySummaryConverter
+    HomePowerPlantConnectionFactory,
+    InfoTag,
+    MonthlySummaryConverter,
+    RequestChargingConfigurationCreator,
+    SetPowerSettingsCreator,
+    WriteChargingLimitsResult,
+    WriteChargingLimitsResultConverter,
+    YearlySummaryConverter
 } from 'easy-rscp';
 import {LiveData} from './model/live-data';
 import {SyncDataFrameConverter} from './converter/SyncDataFrameConverter';
@@ -127,6 +138,61 @@ export class RscpApi {
                     reject,
                     log
                 ))
+        })
+    }
+
+    writeChargingLimits(limits: ChargingLimits, allowReconnect: boolean = true, log: SimpleClass): Promise<WriteChargingLimitsResult> {
+        return new Promise<WriteChargingLimitsResult>((resolve, reject) => {
+            log.log('writeChargingLimits: Requesting connection ...')
+            this.getOpenConnection()
+                .then(con => {
+                    log.log('writeChargingLimits: Connection received')
+                    const request= new SetPowerSettingsCreator().create(limits)
+                    log.log('writeChargingLimits: Sending request frame ...')
+                    con.send(request)
+                        .then(response => {
+                            log.log('writeChargingLimits: Answer received')
+                            const result = new WriteChargingLimitsResultConverter().convert(response)
+                            resolve(result)
+                        })
+                        .catch(e => this.handleWriteChargingLimitsError(
+                            limits,
+                            allowReconnect,
+                            e,
+                            resolve,
+                            reject,
+                            log
+                        ))
+
+                })
+                .catch(e => this.handleWriteChargingLimitsError(
+                    limits,
+                    allowReconnect,
+                    e,
+                    resolve,
+                    reject,
+                    log
+                ))
+        })
+    }
+
+    readChargingConfiguration(allowReconnect: boolean = true, log: SimpleClass): Promise<ChargingConfiguration> {
+        return new Promise<ChargingConfiguration>((resolve, reject) => {
+            log.log('readChargingConfiguration: Requesting connection ...')
+            this.getOpenConnection()
+                .then(con => {
+                    log.log('readChargingConfiguration: Connection received')
+                    const request = new RequestChargingConfigurationCreator().create(undefined)
+                    log.log('readChargingConfiguration: Sending request frame ...')
+                    con.send(request)
+                        .then(response => {
+                            log.log('readChargingConfiguration: Answer received')
+                            const result = new ChargingConfigurationConverter().convert(response)
+                            resolve(result)
+                        })
+                        .catch(e => this.handleReadChargingConfigurationError(allowReconnect, e, resolve, reject, log))
+                })
+                .catch(e => this.handleReadChargingConfigurationError(allowReconnect, e, resolve, reject, log))
         })
     }
 
@@ -354,6 +420,62 @@ export class RscpApi {
         }
         else {
             log.log('readSummaryData: Received error. Error: ' + causingError)
+            reject(causingError)
+        }
+    }
+
+    private handleWriteChargingLimitsError(
+        limits: ChargingLimits,
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: WriteChargingLimitsResult | PromiseLike<WriteChargingLimitsResult>) => void),
+        reject: ((reason?: any) => void),
+        log: SimpleClass,
+
+    ) {
+
+        if (allowReconnect) {
+            log.log('writeChargingLimits: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection()
+            this.writeChargingLimits(limits, false, log)
+                .then(data => {
+                    log.log('writeChargingLimits: Retry was successfull')
+                    resolve(data)
+                })
+                .catch(e => {
+                    log.log('writeChargingLimits: Retry failed also: ' + e)
+                    reject(e)
+                })
+        }
+        else {
+            log.log('writeChargingLimits: Received error. Error: ' + causingError)
+            reject(causingError)
+        }
+    }
+
+    private handleReadChargingConfigurationError(
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: ChargingConfiguration | PromiseLike<ChargingConfiguration>) => void),
+        reject: ((reason?: any) => void),
+        log: SimpleClass,
+
+    ) {
+        if (allowReconnect) {
+            log.log('readChargingConfiguration: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection()
+            this.readChargingConfiguration( false, log)
+                .then(data => {
+                    log.log('readChargingConfiguration: Retry was successfull')
+                    resolve(data)
+                })
+                .catch(e => {
+                    log.log('readChargingConfiguration: Retry failed also: ' + e)
+                    reject(e)
+                })
+        }
+        else {
+            log.log('readChargingConfiguration: Received error. Error: ' + causingError)
             reject(causingError)
         }
     }

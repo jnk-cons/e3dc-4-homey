@@ -78,6 +78,62 @@
           }
         ]
       }
+    ],
+    "actions": [
+      {
+        "id": "configure_max_charging_power",
+        "title": {
+          "de": "Setze die max. Ladeleistung",
+          "en": "Set the max. charging power"
+        },
+        "titleFormatted": {
+          "de": "Setzt das maximale Ladelimit des Hauskraftwerks auf [[limit]] [[unit]]",
+          "en": "Sets the maximum charge limit of the home power station to [[limit]] [[unit]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "limit",
+            "title": {
+              "de": "Ladelimit",
+              "en": "Charging limit"
+            },
+            "required": true,
+            "min": 0,
+            "step": 1
+          },
+          {
+            "type": "dropdown",
+            "name": "unit",
+            "title": {
+              "en": "Unit",
+              "de": "Einheit"
+            },
+            "required": false,
+            "values": [
+              {
+                "id": "w",
+                "label": {
+                  "de": "Watt",
+                  "en": "Watt"
+                }
+              },
+              {
+                "id": "percentage",
+                "label": {
+                  "de": "%",
+                  "en": "%"
+                }
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   "drivers": [

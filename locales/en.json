@@ -44,6 +44,19 @@
   },
   "messages": {
     "hps-not-available": "Error accessing the home power station. Check the connection settings.",
-    "hps-device-not-found": "The Homey device of the home power station has been removed. Add the statistic device again."
+    "hps-device-not-found": "The Homey device of the home power station has been removed. Add the statistic device again.",
+    "invalid-percentage": "The percentage value must be >= 0 and <= 100.",
+    "to-low-limit": "The limit must be >= 0.",
+    "requested-max-charging-power-to-high": "The requested maximum charging power of __REQUESTED__ watts is higher than the permitted maximum of __MAX__ watts of the home power station.",
+    "requested-max-charging-power-to-low": "The requested maximum charging power of __REQUESTED__ watts is lower than the permitted minimum of __MIN__ watts of the home power station.",
+    "requested-max-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum charging power. Response: __RESULTCODE__"
+  },
+  "result-code": {
+    "SUCCESS": "Successful",
+    "UNHANDLED": "Not treated",
+    "ACCESS_DENIED": "Access denied",
+    "FORMAT_ERROR": "Request Format Incorrect",
+    "AGAIN": "Repeat request later",
+    "UNKNOWN": "Unknown"
   }
 }
