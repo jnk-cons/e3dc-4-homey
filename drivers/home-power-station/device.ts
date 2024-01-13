@@ -22,22 +22,20 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     this.firmwareChangedCard = this.homey.flow.getDeviceTriggerCard('firmware_has_changed')
 
     setTimeout(() => {
-      this.startAutoSync()
+      this.autoSync()
     }, 2000)
   }
 
-  private startAutoSync() {
-    this.log('Starting auto sync ...')
+  private autoSync() {
+    this.log('Auto sync ...')
     this.sync().then(() => {
-      this.loopId = setInterval(() => this.sync(), SYNC_INTERVAL)
+      this.loopId = setTimeout(() => this.autoSync(), SYNC_INTERVAL)
     })
   }
 
   getId(): string {
     return this.getData().id;
   }
-
-
 
   public getApi(): RscpApi {
     if (this.api) {
@@ -137,7 +135,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   async onDeleted() {
     this.log('HomePowerStationDevice has been deleted');
     if (this.loopId) {
-      clearInterval(this.loopId)
+      clearTimeout(this.loopId)
     }
     new RscpApi().closeConnection()
   }

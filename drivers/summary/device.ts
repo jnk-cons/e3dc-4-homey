@@ -18,14 +18,14 @@ class SummaryDevice extends Homey.Device {
     this.log('SummaryDevice has been initialized');
 
     setTimeout(() => {
-      this.startAutoSync()
+      this.autoSync()
     }, 5000)
   }
 
-  private startAutoSync() {
-    this.log('Starting auto sync ...')
+  private autoSync() {
+    this.log('Auto sync ...')
     this.sync().then(() => {
-      this.loopId = setInterval(() => this.sync(), SYNC_INTERVAL)
+      this.loopId = setTimeout(() => this.autoSync(), SYNC_INTERVAL)
     })
   }
 
@@ -104,7 +104,7 @@ class SummaryDevice extends Homey.Device {
   async onDeleted() {
     this.log('SummaryDevice has been deleted');
     if (this.loopId) {
-      clearInterval(this.loopId)
+      clearTimeout(this.loopId)
     }
   }
 
