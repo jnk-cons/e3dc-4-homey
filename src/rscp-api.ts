@@ -21,34 +21,55 @@ let connection: HomePowerPlantConnection | undefined = undefined
 let connectionFactory: HomePowerPlantConnectionFactory | undefined = undefined
 let connectionData: E3dcConnectionData | undefined = undefined
 export class RscpApi {
-    init(data: E3dcConnectionData) {
+    init(data: E3dcConnectionData, log: SimpleClass) {
         connectionData = data
         connectionFactory = new DefaultHomePowerPlantConnectionFactory(connectionData)
-        this.closeConnection()
+        this.closeConnection(log).then()
     }
 
-    private getOpenConnection(): Promise<HomePowerPlantConnection> {
+    private getOpenConnection(log: SimpleClass): Promise<HomePowerPlantConnection> {
         return new Promise<HomePowerPlantConnection>((resolve, reject) => {
             if (connection && connection.isConnected()) {
+                log.log('getOpenConnection: Returning existing connection')
                 resolve(connection)
             }
             else {
-                connectionFactory?.openConnection()
+                log.log('getOpenConnection: Creating new connection')
+                connectionFactory!!.openConnection()
                     .then(con => {
+                        log.log('getOpenConnection: Returning new connection')
                         connection = con;
                         resolve(connection)
                     })
-                    .catch(e => reject(e))
+                    .catch(e => {
+                        log.error('getOpenConnection: Creating new connection failed')
+                        log.error(e)
+                        reject(e)
+                    })
             }
         })
     }
 
-    closeConnection() {
-        if (connection) {
-            connection.disconnect().then()
-            connection = undefined
+    closeConnection(log: SimpleClass):Promise<any> {
+        return new Promise((resolve, reject) => {
+            if (connection) {
+                log.log('closeConnection: closing connection')
+                connection
+                    .disconnect()
+                    .then()
+                    .finally(() => {
+                        setTimeout(() => {
+                            log.log('closeConnection: Connection closed')
+                            connection = undefined
+                            resolve(undefined)
+                        }, 2000)
+                    })
+            }
+            else {
+                resolve(undefined)
+            }
+        })
 
-        }
     }
 
     connectionTest(data: E3dcConnectionData): Promise<string | undefined> {
@@ -77,7 +98,7 @@ export class RscpApi {
             const date = new Date()
             date.setHours(0, 0, 0, 0)
             log.log('readSummaryData: Requesting connection ...')
-            this.getOpenConnection()
+            this.getOpenConnection(log)
                 .then(con => {
                     log.log('readSummaryData: Connection received')
                     const request= this.buildFrameBySummaryType(summaryType, log)
@@ -237,10 +258,10 @@ export class RscpApi {
         return new Promise<LiveData>((resolve, reject) => {
             const date = new Date()
             date.setHours(0, 0, 0, 0)
-            log.log('readSyncData: Requesting connection ...')
-            this.getOpenConnection()
+            log.log('readLiveData: Requesting connection ...')
+            this.getOpenConnection(log)
                 .then(con => {
-                    log.log('readSyncData: Connection received')
+                    log.log('readLiveData: Connection received')
                     const request= new FrameBuilder()
                         .addData(
                             new DataBuilder().tag(EMSTag.REQ_POWER_PV).build(),
@@ -251,10 +272,10 @@ export class RscpApi {
                             new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build()
                         )
                         .build();
-                    log.log('readSyncData: Sending request frame ...')
+                    log.log('readLiveData: Sending request frame ...')
                     con.send(request)
                         .then(response => {
-                            log.log('readSyncData: Answer received')
+                            log.log('readLiveData: Answer received')
                             resolve(new SyncDataFrameConverter().convert(response))
                         })
                         .catch(e => this.handleReadSyncDataError(
@@ -284,22 +305,23 @@ export class RscpApi {
         log: SimpleClass,
 
     ) {
-
         if (allowReconnect) {
-            log.log('readSyncData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection()
-            this.readLiveData(false, log)
-                .then(data => {
-                    log.log('readSyncData: Retry was successfull')
-                    resolve(data)
-                })
-                .catch(e => {
-                    log.log('readSyncData: Retry failed also: ' + e)
-                    reject(e)
+            log.log('readLiveData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection(log)
+                .finally(() => {
+                    this.readLiveData(false, log)
+                        .then(data => {
+                            log.log('readLiveData: Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('readLiveData: Retry failed also: ' + e)
+                            reject(e)
+                        })
                 })
         }
         else {
-            log.log('readSyncData: Received error. Error: ' + causingError)
+            log.log('readLiveData: Received error. Error: ' + causingError)
             reject(causingError)
         }
     }
@@ -316,16 +338,19 @@ export class RscpApi {
 
         if (allowReconnect) {
             log.log('readSummaryData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection()
-            this.readSummaryData(type, false, log)
-                .then(data => {
-                    log.log('readSummaryData: Retry was successfull')
-                    resolve(data)
+            this.closeConnection(log)
+                .finally(() => {
+                    this.readSummaryData(type, false, log)
+                        .then(data => {
+                            log.log('readSummaryData: Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('readSummaryData: Retry failed also: ' + e)
+                            reject(e)
+                        })
                 })
-                .catch(e => {
-                    log.log('readSummaryData: Retry failed also: ' + e)
-                    reject(e)
-                })
+
         }
         else {
             log.log('readSummaryData: Received error. Error: ' + causingError)

@@ -12,6 +12,6 @@
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "easy-rscp": "^0.5.1"
+    "easy-rscp": "^0.6.1"
   }
 }

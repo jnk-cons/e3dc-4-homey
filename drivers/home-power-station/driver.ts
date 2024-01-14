@@ -52,7 +52,7 @@ class HomePowerStationDriver extends Homey.Driver {
         }
 
         const api = new RscpApi()
-        api.init(easyRscpConnectionData)
+        api.init(easyRscpConnectionData, this)
         api.readLiveData(true, this)
             .then(e => resolve(this.homey.__('setup.connection-test.success')))
             .catch(e => {

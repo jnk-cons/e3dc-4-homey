@@ -1,10 +1,8 @@
 import Homey, {FlowCardTriggerDevice} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
-import {E3dcConnectionData, StringFrameConverter} from 'easy-rscp';
+import {E3dcConnectionData} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
-import {ValueChanged} from '../../src/model/value-changed';
 import {HomePowerStation} from '../../src/model/home-power-station';
-import {clearInterval} from 'timers';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
@@ -22,22 +20,20 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     this.firmwareChangedCard = this.homey.flow.getDeviceTriggerCard('firmware_has_changed')
 
     setTimeout(() => {
-      this.startAutoSync()
+      this.autoSync()
     }, 2000)
   }
 
-  private startAutoSync() {
-    this.log('Starting auto sync ...')
+  private autoSync() {
+    this.log('Auto sync ...')
     this.sync().then(() => {
-      this.loopId = setInterval(() => this.sync(), SYNC_INTERVAL)
+      this.loopId = setTimeout(() => this.autoSync(), SYNC_INTERVAL)
     })
   }
 
   getId(): string {
     return this.getData().id;
   }
-
-
 
   public getApi(): RscpApi {
     if (this.api) {
@@ -50,8 +46,10 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       port: storedSettings.stationPort,
       portalUser: storedSettings.portalUsername,
       portalPassword: storedSettings.portalPassword,
-      rscpPassword: storedSettings.rscpKey
-    })
+      rscpPassword: storedSettings.rscpKey,
+      connectionTimeoutMillis: 5000,
+      readTimeoutMillis: 5000
+    }, this)
     return this.api
   }
 
@@ -127,7 +125,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       // @ts-ignore
       rscpPassword: newSettings.rscpKey
     }
-    new RscpApi().init(e3dcData)
+    new RscpApi().init(e3dcData, this)
   }
 
   async onRenamed(name: string) {
@@ -137,9 +135,9 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   async onDeleted() {
     this.log('HomePowerStationDevice has been deleted');
     if (this.loopId) {
-      clearInterval(this.loopId)
+      clearTimeout(this.loopId)
     }
-    new RscpApi().closeConnection()
+    new RscpApi().closeConnection(this).then()
   }
 
 }
