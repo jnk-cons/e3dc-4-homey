@@ -47,6 +47,16 @@
             }
           ]
         }
+      ],
+      "tokens": [
+        {
+          "name": "max charging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Ladeleistung (W)",
+            "en": "Max. charging power (W)"
+          }
+        }
       ]
     }
   ],

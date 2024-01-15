@@ -2,8 +2,9 @@ import Homey from 'homey';
 import PairSession from 'homey/lib/PairSession';
 import {SummaryConfig, SummaryType} from '../../src/model/summary.config';
 import {getTypeName} from '../../src/utils/i18n-utils';
+import {I18n} from '../../src/internal-api/i18n';
 
-class SummaryDriver extends Homey.Driver {
+class SummaryDriver extends Homey.Driver implements I18n{
 
   private type: SummaryType = SummaryType.TODAY
 
@@ -41,7 +42,7 @@ class SummaryDriver extends Homey.Driver {
       const stationData = await station.getData();
       const stationId = stationData.id;
       this.log(stationData)
-      const name = station.getName() + ' - ' + getTypeName(this.type, this.homey)
+      const name = station.getName() + ' - ' + getTypeName(this.type, this)
       const settings: SummaryConfig = {
         stationId: stationId,
         type: this.type
@@ -59,6 +60,12 @@ class SummaryDriver extends Homey.Driver {
 
     return devices;
   }
+
+  translate(key: string | Object, tags?: Object | undefined): string {
+    return this.homey.__(key, tags);
+  }
+
+
 
 }
 

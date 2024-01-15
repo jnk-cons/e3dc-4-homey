@@ -48,7 +48,9 @@ class HomePowerStationDriver extends Homey.Driver {
           port: this.settings.stationPort,
           portalUser: this.settings.portalUsername,
           portalPassword: this.settings.portalPassword,
-          rscpPassword: this.settings.rscpKey
+          rscpPassword: this.settings.rscpKey,
+          connectionTimeoutMillis: 5000,
+          readTimeoutMillis: 5000
         }
 
         const api = new RscpApi()
