@@ -1,9 +1,15 @@
-import Homey, {FlowCardTriggerDevice} from 'homey';
+import Homey, {FlowCardTriggerDevice, SimpleClass} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
 import {E3dcConnectionData} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
 import {HomePowerStation} from '../../src/model/home-power-station';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
+import {SetMaxChargingPowerActionCard} from '../../src/cards/action/set-max-charging-power.action.card';
+import {clearTimeout} from 'node:timers';
+import {
+  RemoveMaxChargingPowerLimitActionCard
+} from '../../src/cards/action/remove-max-charging-power-limit.action.card';
+import {SetPowerLimitsToDefaultActionCard} from '../../src/cards/action/set-power-limits-to-default.action.card';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
@@ -22,6 +28,44 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     setTimeout(() => {
       this.autoSync()
     }, 2000)
+
+    this.setupActionCards()
+  }
+
+  private setupActionCards() {
+    this.setupConfigureMaxChargingLimitActionCard()
+    this.setupRemoveMaxChargingLimitActionCard()
+    this.setupRemoveAllLimitsActionCard()
+  }
+
+  private setupConfigureMaxChargingLimitActionCard() {
+    const card = this.homey.flow.getActionCard('configure_max_charging_power')
+    card.registerRunListener(new SetMaxChargingPowerActionCard().run)
+  }
+
+  private setupRemoveMaxChargingLimitActionCard() {
+    const card = this.homey.flow.getActionCard('remove_max_charging_power')
+    card.registerRunListener(new RemoveMaxChargingPowerLimitActionCard().run)
+  }
+
+  private setupRemoveAllLimitsActionCard() {
+    const card = this.homey.flow.getActionCard('remove_all_power_limits')
+    card.registerRunListener(new SetPowerLimitsToDefaultActionCard().run)
+  }
+
+  asSimple(): SimpleClass {
+    return this;
+  }
+
+  validateUnit(value: number, unit: CardUnit): string | undefined {
+    if (unit == CardUnit.PERCENTAGE && value > 100) {
+      return this.homey.__('messages.invalid-percentage')
+    }
+    if (value < 0) {
+      return this.homey.__('messages.to-low-limit"')
+    }
+
+    return undefined
   }
 
   private autoSync() {
@@ -140,6 +184,14 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     new RscpApi().closeConnection(this).then()
   }
 
+  translate(key: string | Object, tags?: Object | undefined): string {
+    return this.homey.__(key, tags);
+  }
+}
+
+export enum CardUnit {
+  WATT = 'w',
+  PERCENTAGE = 'percentage'
 }
 
 module.exports = HomePowerStationDevice;

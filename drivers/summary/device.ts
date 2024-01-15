@@ -2,14 +2,15 @@ import Homey from 'homey';
 import {SummaryConfig} from '../../src/model/summary.config';
 import {HomePowerStation} from '../../src/model/home-power-station';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
-import {clearInterval} from 'timers';
 import {getTypeName} from '../../src/utils/i18n-utils';
+import {I18n} from '../../src/internal-api/i18n';
+import {clearTimeout} from 'node:timers';
 
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 min
 // const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
 
-class SummaryDevice extends Homey.Device {
+class SummaryDevice extends Homey.Device implements I18n{
 
   private loopId: NodeJS.Timeout |null = null
   private syncErrorCount: number = 0
@@ -33,7 +34,7 @@ class SummaryDevice extends Homey.Device {
     return new Promise((resolve, reject) => {
       const hpsDevices = this.homey.drivers.getDriver('home-power-station').getDevices()
       const ownConfig: SummaryConfig = this.getStoreValue('settings')
-      updateCapabilityValue('date_range', getTypeName(ownConfig.type, this.homey), this)
+      updateCapabilityValue('date_range', getTypeName(ownConfig.type, this), this)
       const stationId = ownConfig.stationId
       const stationToUse = hpsDevices.find(value => {
         const asStation: HomePowerStation = value as unknown as HomePowerStation
@@ -107,6 +108,12 @@ class SummaryDevice extends Homey.Device {
       clearTimeout(this.loopId)
     }
   }
+
+  translate(key: string | Object, tags?: Object | undefined): string {
+    return this.homey.__(key, tags);
+  }
+
+
 
 }
 
