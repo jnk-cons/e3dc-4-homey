@@ -49,7 +49,8 @@
     "to-low-limit": "The limit must be >= 0.",
     "requested-max-charging-power-to-high": "The requested maximum charging power of __REQUESTED__ watts is higher than the permitted maximum of __MAX__ watts of the home power station.",
     "requested-max-charging-power-to-low": "The requested maximum charging power of __REQUESTED__ watts is lower than the permitted minimum of __MIN__ watts of the home power station.",
-    "requested-max-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum charging power. Response: __RESULTCODE__"
+    "requested-max-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum charging power. Response: __RESULTCODE__",
+    "removal-of-all-powerlimits-denied-by-hps": "The home power station has refused to remove the power limits. Answer: Maximum charging limit: __CHARGING_RESULTCODE__, Maximum discharge limit: __DISCHARGING_RESULTCODE__, Start value: __START_RESULTCODE__, Switches: __SWITCH_RESULTCODE__"
   },
   "result-code": {
     "SUCCESS": "Successful",

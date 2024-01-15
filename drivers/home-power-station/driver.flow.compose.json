@@ -58,6 +58,56 @@
           }
         }
       ]
+    },
+    {
+      "id": "remove_max_charging_power",
+      "title": {
+        "de": "Entferne die max. Ladeleistungsbeschränkung",
+        "en": "Remove the max. charging power restriction"
+      },
+      "titleFormatted": {
+        "de": "Entferne das maximale Ladelimit des Hauskraftwerks",
+        "en": "Remove the maximum load limit of the home power station"
+      },
+      "tokens": [
+        {
+          "name": "max charging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Ladeleistung (W)",
+            "en": "Max. charging power (W)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "remove_all_power_limits",
+      "title": {
+        "de": "Entferne alle Lade- und Entladelimits",
+        "en": "Remove all charging and discharging limits"
+      },
+      "titleFormatted": {
+        "de": "Entferne alle Lade- und Entladelimits und setzt diese auf die Defaultwerte zurück",
+        "en": "Remove all charging and discharging limits and reset them to the default values"
+      },
+      "tokens": [
+        {
+          "name": "max charging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Ladeleistung (W)",
+            "en": "Max. charging power (W)"
+          }
+        },
+        {
+          "name": "max discharging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Entladeleistung (W)",
+            "en": "Max. discharging power (W)"
+          }
+        }
+      ]
     }
   ],
   "triggers": [
