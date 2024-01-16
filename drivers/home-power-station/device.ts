@@ -10,6 +10,10 @@ import {
   RemoveMaxChargingPowerLimitActionCard
 } from '../../src/cards/action/remove-max-charging-power-limit.action.card';
 import {SetPowerLimitsToDefaultActionCard} from '../../src/cards/action/set-power-limits-to-default.action.card';
+import {SetMaxDischargingPowerActionCard} from '../../src/cards/action/set-max-discharging-power.action.card';
+import {
+  RemoveMaxDischargingPowerLimitActionCard
+} from '../../src/cards/action/remove-max-discharging-power-limit.action.card';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
@@ -35,6 +39,8 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   private setupActionCards() {
     this.setupConfigureMaxChargingLimitActionCard()
     this.setupRemoveMaxChargingLimitActionCard()
+    this.setupConfigureMaxDischargingLimitActionCard()
+    this.setupRemoveMaxDischargingLimitActionCard()
     this.setupRemoveAllLimitsActionCard()
   }
 
@@ -46,6 +52,16 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   private setupRemoveMaxChargingLimitActionCard() {
     const card = this.homey.flow.getActionCard('remove_max_charging_power')
     card.registerRunListener(new RemoveMaxChargingPowerLimitActionCard().run)
+  }
+
+  private setupConfigureMaxDischargingLimitActionCard() {
+    const card = this.homey.flow.getActionCard('configure_max_discharging_power')
+    card.registerRunListener(new SetMaxDischargingPowerActionCard().run)
+  }
+
+  private setupRemoveMaxDischargingLimitActionCard() {
+    const card = this.homey.flow.getActionCard('remove_max_discharging_power')
+    card.registerRunListener(new RemoveMaxDischargingPowerLimitActionCard().run)
   }
 
   private setupRemoveAllLimitsActionCard() {

@@ -67,7 +67,7 @@
       },
       "titleFormatted": {
         "de": "Entferne das maximale Ladelimit des Hauskraftwerks",
-        "en": "Remove the maximum load limit of the home power station"
+        "en": "Remove the maximum discharging limit of the home power station"
       },
       "tokens": [
         {
@@ -76,6 +76,86 @@
           "title": {
             "de": "Max. Ladeleistung (W)",
             "en": "Max. charging power (W)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "configure_max_discharging_power",
+      "title": {
+        "de": "Setze die max. Entladeleistung",
+        "en": "Set the max. discharging power"
+      },
+      "titleFormatted": {
+        "de": "Setzt das maximale Entladelimit des Hauskraftwerks auf [[limit]] [[unit]]",
+        "en": "Sets the maximum discharge limit of the home power station to [[limit]] [[unit]]"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "limit",
+          "title": {
+            "de": "Entladelimit",
+            "en": "Discharging limit"
+          },
+          "required": true,
+          "min": 0,
+          "step": 1
+        },
+        {
+          "type": "dropdown",
+          "name": "unit",
+          "title": {
+            "en": "Unit",
+            "de": "Einheit"
+          },
+          "required": false,
+          "values": [
+            {
+              "id": "w",
+              "label": {
+                "de": "Watt",
+                "en": "Watt"
+              }
+            },
+            {
+              "id": "percentage",
+              "label": {
+                "de": "%",
+                "en": "%"
+              }
+            }
+          ]
+        }
+      ],
+      "tokens": [
+        {
+          "name": "max discharging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Entladeleistung (W)",
+            "en": "Max. discharging power (W)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "remove_max_discharging_power",
+      "title": {
+        "de": "Entferne die max. Entladeleistungsbeschränkung",
+        "en": "Remove the max. discharging power restriction"
+      },
+      "titleFormatted": {
+        "de": "Entferne das maximale Entladelimit des Hauskraftwerks",
+        "en": "Remove the maximum discharging limit of the home power station"
+      },
+      "tokens": [
+        {
+          "name": "max discharging limit",
+          "type": "number",
+          "title": {
+            "de": "Max. Entladeleistung (W)",
+            "en": "Max. discharging power (W)"
           }
         }
       ]
