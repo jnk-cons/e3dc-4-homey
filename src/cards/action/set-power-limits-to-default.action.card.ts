@@ -35,7 +35,7 @@ export class SetPowerLimitsToDefaultActionCard implements RunListener {
                                     + ', Discharging limit=' + result.maxCurrentDischargingPower
                                     + ', startPower=' + result.dischargeStartPower
                                     + ', switch=' + result.chargingLimitationsEnabled)
-                                reject(hps.translate('messages.requested-max-charging-power-denied-by-hps',
+                                reject(hps.translate('messages.removal-of-all-powerlimits-denied-by-hps',
                                     {
                                         CHARGING_RESULTCODE: getResultCode(result.maxCurrentChargingPower, hps),
                                         DISCHARGING_RESULTCODE: getResultCode(result.maxCurrentDischargingPower, hps),
