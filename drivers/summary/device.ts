@@ -6,7 +6,7 @@ import {getTypeName} from '../../src/utils/i18n-utils';
 import {I18n} from '../../src/internal-api/i18n';
 import {clearTimeout} from 'node:timers';
 
-const SYNC_INTERVAL = 1000 * 60 * 5; // 5 min
+const SYNC_INTERVAL_SUMMARY = 1000 * 60 * 5; // 5 min
 // const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
 
@@ -26,7 +26,7 @@ class SummaryDevice extends Homey.Device implements I18n{
   private autoSync() {
     this.log('Auto sync ...')
     this.sync().then(() => {
-      this.loopId = setTimeout(() => this.autoSync(), SYNC_INTERVAL)
+      this.loopId = setTimeout(() => this.autoSync(), SYNC_INTERVAL_SUMMARY)
     })
   }
 

@@ -218,7 +218,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
           .then(result => {
             updateCapabilityValue('measure_pv_delivery', result.pvDelivery, this)
             updateCapabilityValue('measure_grid_delivery', result.gridDelivery, this)
-            updateCapabilityValue('measure_battery_delivery', result.batteryDelivery, this)
+            updateCapabilityValue('measure_battery_delivery', result.batteryDelivery * -1, this)
             updateCapabilityValue('measure_house_consumption', result.houseConsumption, this)
             updateCapabilityValue('measure_battery', result.batteryChargingLevel * 100, this)
             const firmwareChange = updateCapabilityValue('firmware_version', result.firmwareVersion, this)
