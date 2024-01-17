@@ -53,7 +53,9 @@
     "removal-of-all-powerlimits-denied-by-hps": "The home power station has refused to remove the power limits. Answer: Maximum charging limit: __CHARGING_RESULTCODE__, Maximum discharge limit: __DISCHARGING_RESULTCODE__, Start value: __START_RESULTCODE__, Switches: __SWITCH_RESULTCODE__",
     "requested-min-charging-power-to-high": "The requested maximum discharging power of __REQUESTED__ watts is higher than the permitted maximum of __MAX__ watts of the home power station.",
     "requested-min-charging-power-to-low": "The requested maximum discharging power of __REQUESTED__ watts is lower than the permitted minimum of __MIN__ watts of the home power station.",
-    "requested-min-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum discharging power. Response: __RESULTCODE__"
+    "requested-min-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum discharging power. Response: __RESULTCODE__",
+    "activating-of-powerlimits-failed-by-hps": "The home power station has refused to activate the charge/discharge limits. Response: __RESULTCODE__",
+    "deactivating-of-powerlimits-failed-by-hps": "The home power station has refused to deactivate the charge/discharge limits. Response: __RESULTCODE__"
   },
   "result-code": {
     "SUCCESS": "Successful",

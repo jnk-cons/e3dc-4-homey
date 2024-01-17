@@ -26,7 +26,7 @@ export class SetPowerLimitsToDefaultActionCard implements RunListener {
                                 hps.log('Successful removal of limits')
                                 const token = {
                                     'max charging limit': config.maxPossibleChargingPower,
-                                    'max discharging limit': config.maxPossibleChargingPower,
+                                    'max discharging limit': config.maxPossibleDischargingPower,
                                 }
                                 resolve(token)
                             }

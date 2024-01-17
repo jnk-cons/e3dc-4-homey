@@ -55,7 +55,9 @@
     "removal-of-all-powerlimits-denied-by-hps": "Das Hauskraftwerk hat das entfernen der power limits abgelehnt. Antwort: Maximales Ladelimit: __CHARGING_RESULTCODE__, Maximales Entladelimit: __DISCHARGING_RESULTCODE__, Startwert: __START_RESULTCODE__, Schalter: __SWITCH_RESULTCODE__",
     "requested-max-discharging-power-to-high": "Die angeforderte maximale Entladeleistung von __REQUESTED__ Watt ist höher als das zulässige Maximum von __MAX__ Watt des Hauskraftwerks.",
     "requested-max-discharging-power-to-low": "Die angeforderte maximale Entladeleistung von __REQUESTED__ Watt ist niedriger als das zulässige Minimum von __MIN__ Watt des Hauskraftwerks.",
-    "requested-max-discharging-power-denied-by-hps": "Das Hauskraftwerk hat den angeforderten Wert der maximalen Entladeleistung abgelehnt. Antwort: __RESULTCODE__"
+    "requested-max-discharging-power-denied-by-hps": "Das Hauskraftwerk hat den angeforderten Wert der maximalen Entladeleistung abgelehnt. Antwort: __RESULTCODE__",
+    "activating-of-powerlimits-failed-by-hps": "Das Hauskraftwerk hat die Aktivierung der Lade-/Entladelimits abgelehnt. Antwort: __RESULTCODE__",
+    "deactivating-of-powerlimits-failed-by-hps": "Das Hauskraftwerk hat die Deaktivierung der Lade-/Entladelimits abgelehnt. Antwort: __RESULTCODE__"
   },
   "result-code": {
     "SUCCESS": "Erfolgreich",

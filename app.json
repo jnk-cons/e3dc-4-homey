@@ -48,9 +48,13 @@
           "de": "Firmware wurde aktualisiert",
           "en": "Firmware has been updated"
         },
+        "hint": {
+          "de": "Wird ausgelöst, sobald eine neue Firmwareversion auf dem Hauskraftwerk installiert wurde",
+          "en": "Is triggered as soon as a new firmware version has been installed on the home power station"
+        },
         "tokens": [
           {
-            "name": "old firmware version",
+            "name": "old",
             "type": "string",
             "title": {
               "de": "Alte Firmware",
@@ -58,7 +62,7 @@
             }
           },
           {
-            "name": "new firmware version",
+            "name": "new",
             "type": "string",
             "title": {
               "de": "Neue Firmware",
@@ -66,9 +70,229 @@
             }
           }
         ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "max_charging_limit_has_changed",
+        "title": {
+          "de": "Maximale Ladeleistung wurde geändert",
+          "en": "Maximum charging power has been changed"
+        },
         "hint": {
-          "de": "Wird ausgelöst, sobald eine neue Firmwareversion auf dem Hauskraftwerk installiert wurde",
-          "en": "Is triggered as soon as a new firmware version has been installed on the home power station"
+          "de": "Wird ausgelöst, sobald sich die maximal mögliche Ladeleistung geändert hat",
+          "en": "Is triggered as soon as the maximum possible charging power has changed"
+        },
+        "tokens": [
+          {
+            "name": "old",
+            "type": "number",
+            "title": {
+              "de": "Alte max. Ladeleistung (W)",
+              "en": "Old max. charging power (W)"
+            }
+          },
+          {
+            "name": "new",
+            "type": "number",
+            "title": {
+              "de": "Neue max. Ladeleistung (W)",
+              "en": "New max. charging power (W)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "max_discharging_limit_has_changed",
+        "title": {
+          "de": "Maximale Entladeleistung wurde geändert",
+          "en": "Maximum discharging power has been changed"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald sich die maximal mögliche Entladeleistung geändert hat",
+          "en": "Is triggered as soon as the maximum possible discharging power has changed"
+        },
+        "tokens": [
+          {
+            "name": "old",
+            "type": "number",
+            "title": {
+              "de": "Alte max. Entladeleistung (W)",
+              "en": "Old max. discharging power (W)"
+            }
+          },
+          {
+            "name": "new",
+            "type": "number",
+            "title": {
+              "de": "Neue max. Entladeleistung (W)",
+              "en": "New max. discharging power (W)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "is_max_charging_limit_greater_than",
+        "title": {
+          "de": "Die max. Ladeleistung ist !{{größer|kleiner}} als",
+          "en": "The max. charging power is !{{greater|less}} than"
+        },
+        "titleFormatted": {
+          "de": "Die max. Ladeleistung ist !{{größer|kleiner}} als [[limit]] [[unit]]",
+          "en": "The max. charging power is !{{greater|less}} than [[limit]] [[unit]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "limit",
+            "title": {
+              "de": "Ladelimit",
+              "en": "Charging limit"
+            },
+            "required": true,
+            "min": 0,
+            "step": 1
+          },
+          {
+            "type": "dropdown",
+            "name": "unit",
+            "title": {
+              "en": "Unit",
+              "de": "Einheit"
+            },
+            "required": true,
+            "values": [
+              {
+                "id": "w",
+                "label": {
+                  "de": "Watt",
+                  "en": "Watt"
+                }
+              },
+              {
+                "id": "percentage",
+                "label": {
+                  "de": "%",
+                  "en": "%"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "is_max_discharging_limit_greater_than",
+        "title": {
+          "de": "Die max. Entladeleistung ist !{{größer|kleiner}} als",
+          "en": "The max. discharging power is !{{greater|less}} than"
+        },
+        "titleFormatted": {
+          "de": "Die max. Entladeleistung ist !{{größer|kleiner}} als [[limit]] [[unit]]",
+          "en": "The max. discharging power is !{{greater|less}} than [[limit]] [[unit]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "limit",
+            "title": {
+              "de": "Entladelimit",
+              "en": "Discharging limit"
+            },
+            "required": true,
+            "min": 0,
+            "step": 1
+          },
+          {
+            "type": "dropdown",
+            "name": "unit",
+            "title": {
+              "en": "Unit",
+              "de": "Einheit"
+            },
+            "required": true,
+            "values": [
+              {
+                "id": "w",
+                "label": {
+                  "de": "Watt",
+                  "en": "Watt"
+                }
+              },
+              {
+                "id": "percentage",
+                "label": {
+                  "de": "%",
+                  "en": "%"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "is_max_charging_limit_active",
+        "title": {
+          "de": "Die maximale Ladeleistung ist aktuell !{{limitiert|nicht limitiert}}",
+          "en": "The maximum charging power is currently !{{limited|not limited}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "is_max_discharging_limit_active",
+        "title": {
+          "de": "Die maximale Entladeleistung ist aktuell !{{limitiert|nicht limitiert}}",
+          "en": "The maximum discharging power is currently !{{limited|not limited}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "is_any_power_limit_active",
+        "title": {
+          "de": "Die maximale Ladeleistung und/oder maximale Entladeleistung ist aktuell !{{limitiert|nicht limitiert}}",
+          "en": "The maximum charging power and/or the maximum discharging power is currently !{{limited|not limited}}"
         },
         "args": [
           {
@@ -89,6 +313,10 @@
         "titleFormatted": {
           "de": "Setzt das maximale Ladelimit des Hauskraftwerks auf [[limit]] [[unit]]",
           "en": "Sets the maximum charge limit of the home power station to [[limit]] [[unit]]"
+        },
+        "hint": {
+          "de": "Setzt das maximale Ladelimit des Hauskraftwerks und aktiviert die Einstellungen. Kann zum Beispiel die Batterie laut Hauskraftwerk mit 7000W geladen werden, der Wert wird auf hier 5000W begrenzt und es liegt mehr als 5000W Überschuss PV Strom an, wird die Batterie entsprechend langsamer geladen. Die Werte müssen innerhalb der zulässigen Werte des Hauskraftwerks liegen. Tuen sie dies nicht, schlägt die Karte fehl.",
+          "en": "Sets the maximum charging limit of the home power station and activates the settings. If, for example, the battery can be charged with 7000W according to the home power station, the value is limited to 5000W here and there is more than 5000W of excess PV power, the battery is charged correspondingly more slowly. The values must be within the permissible values of the home power station. If they are not, the card will fail."
         },
         "args": [
           {
@@ -152,7 +380,11 @@
         },
         "titleFormatted": {
           "de": "Entferne das maximale Ladelimit des Hauskraftwerks",
-          "en": "Remove the maximum discharging limit of the home power station"
+          "en": "Remove the maximum charging limit of the home power station"
+        },
+        "hint": {
+          "de": "Entfernt ein evtl. vorhandenes Ladelimit aus dem Hauskraftwerk.",
+          "en": "Removes any existing charging limit from the home power station."
         },
         "tokens": [
           {
@@ -181,6 +413,10 @@
         "titleFormatted": {
           "de": "Setzt das maximale Entladelimit des Hauskraftwerks auf [[limit]] [[unit]]",
           "en": "Sets the maximum discharge limit of the home power station to [[limit]] [[unit]]"
+        },
+        "hint": {
+          "de": "Setzt das maximale Entladelimit des Hauskraftwerks und aktiviert die Einstellungen. Kann zum Beispiel die Batterie laut Hauskraftwerk mit 7000W entladen werden, der Wert wird auf hier 5000W begrenzt und der Hausverbrauche liegt bei mehr als 5000W, wird die Batterie trotzdem nur mit max. 5000W entladen. Der Unterschied wird in der Regel durch aus dem Netz bzw. dem PV Überschuss ausgeglichen. Die Werte müssen innerhalb der zulässigen Werte des Hauskraftwerks liegen. Tuen sie dies nicht, schlägt die Karte fehl.",
+          "en": "Sets the maximum discharge limit of the home power station and activates the settings. If, for example, the battery can be discharged with 7000W according to the home power station, the value is limited to 5000W here and the home consumption is more than 5000W, the battery is still only discharged with a maximum of 5000W. The difference is usually compensated by the grid or the PV surplus. The values must be within the permissible values of the home power station. If they do not, the card will fail."
         },
         "args": [
           {
@@ -246,6 +482,10 @@
           "de": "Entferne das maximale Entladelimit des Hauskraftwerks",
           "en": "Remove the maximum discharging limit of the home power station"
         },
+        "hint": {
+          "de": "Entfernt ein evtl. vorhandenes Entladelimit aus dem Hauskraftwerk.",
+          "en": "Removes any existing discharging limit from the home power station."
+        },
         "tokens": [
           {
             "name": "max discharging limit",
@@ -270,7 +510,7 @@
           "de": "Entferne alle Lade- und Entladelimits",
           "en": "Remove all charging and discharging limits"
         },
-        "titleFormatted": {
+        "hint": {
           "de": "Entferne alle Lade- und Entladelimits und setzt diese auf die Defaultwerte zurück",
           "en": "Remove all charging and discharging limits and reset them to the default values"
         },
@@ -289,6 +529,154 @@
             "title": {
               "de": "Max. Entladeleistung (W)",
               "en": "Max. discharging power (W)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "provide_charging_configuration",
+        "title": {
+          "de": "Stelle die aktuelle Ladekonfiguration bereit",
+          "en": "Provide the current charging configuration"
+        },
+        "hint": {
+          "de": "Liest die aktuell am Hauskraftwerk eingestellte Ladekonfiguration aus und stellt die Werte als Tokens im Flow zur Verfügung",
+          "en": "Reads out the charging configuration currently set on the home power station and makes the values available as tokens in the flow"
+        },
+        "tokens": [
+          {
+            "name": "max possible charging limit",
+            "type": "number",
+            "title": {
+              "de": "Max. mögliche Ladeleistung (W)",
+              "en": "Max. possible charging power (W)"
+            }
+          },
+          {
+            "name": "max possible discharging limit",
+            "type": "number",
+            "title": {
+              "de": "Max. mögliche Entladeleistung (W)",
+              "en": "Max. possible discharging power (W)"
+            }
+          },
+          {
+            "name": "min possible charging limit",
+            "type": "number",
+            "title": {
+              "de": "Min. mögliche Ladeleistung (W)",
+              "en": "Min. possible charging power (W)"
+            }
+          },
+          {
+            "name": "min possible discharging limit",
+            "type": "number",
+            "title": {
+              "de": "Min. mögliche Entladeleistung (W)",
+              "en": "Min. possible discharging power (W)"
+            }
+          },
+          {
+            "name": "max charging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Ladeleistung (W)",
+              "en": "Current max. charging power (W)"
+            }
+          },
+          {
+            "name": "max discharging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Entladeleistung (W)",
+              "en": "Current max. discharging power (W)"
+            }
+          },
+          {
+            "name": "limits active",
+            "type": "boolean",
+            "title": {
+              "de": "Limit konfiguration aktiviert",
+              "en": "Limit configuration activated"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "activate_configured_power_limits",
+        "title": {
+          "de": "Aktiviere die aktuell am Hauskraftwerk eingestellten Lade-/Entladelimits",
+          "en": "Activate the charge/discharge limits currently set on the home power station"
+        },
+        "hint": {
+          "de": "Aktiviert die Lade- und Entladelimit Konfiguration, die im Hauskraftwerk gespeichert ist",
+          "en": "Activates the charge and discharge limit configuration stored in the home power station"
+        },
+        "tokens": [
+          {
+            "name": "max charging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Ladeleistung (W)",
+              "en": "Current max. charging power (W)"
+            }
+          },
+          {
+            "name": "max discharging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Entladeleistung (W)",
+              "en": "Current max. discharging power (W)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "deactivate_configured_power_limits",
+        "title": {
+          "de": "Deaktiviere die aktuell am Hauskraftwerk eingestellten Lade-/Entladelimits",
+          "en": "Deactivate the charge/discharge limits currently set on the home power station"
+        },
+        "hint": {
+          "de": "Deaktiviert die Lade- und Entladelimit Konfiguration, die im Hauskraftwerk gespeichert ist. Die Werte bleiben erhalten. Nur die Funktion selbst wird deaktiviert",
+          "en": "Deactivates the charging and discharging limit configuration stored in the home power station. The values are retained. Only the function itself is deactivated"
+        },
+        "tokens": [
+          {
+            "name": "max charging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Ladeleistung (W)",
+              "en": "Current max. charging power (W)"
+            }
+          },
+          {
+            "name": "max discharging limit",
+            "type": "number",
+            "title": {
+              "de": "Aktuelle max. Entladeleistung (W)",
+              "en": "Current max. discharging power (W)"
             }
           }
         ],

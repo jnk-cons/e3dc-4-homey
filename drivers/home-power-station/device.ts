@@ -1,6 +1,6 @@
 import Homey, {FlowCardTriggerDevice, SimpleClass} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
-import {E3dcConnectionData} from 'easy-rscp';
+import {ChargingConfiguration, E3dcConnectionData} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
 import {HomePowerStation} from '../../src/model/home-power-station';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
@@ -14,26 +14,104 @@ import {SetMaxDischargingPowerActionCard} from '../../src/cards/action/set-max-d
 import {
   RemoveMaxDischargingPowerLimitActionCard
 } from '../../src/cards/action/remove-max-discharging-power-limit.action.card';
+import {
+  ProvideChargingConfigurationActionCard
+} from '../../src/cards/action/provide-charging-configuration.action.card';
+import {
+  IsMaxChargingLimitGreaterThanConditionCard
+} from '../../src/cards/condition/is-max-charging-limit-greater-than.condition.card';
+import {
+  IsMaxDischargingLimitGreaterThanConditionCard
+} from '../../src/cards/condition/is-max-discharging-limit-greater-than.condition.card';
+import {
+  IsMaxChargingLimitActiveConditionCard
+} from '../../src/cards/condition/is-max-charging-limit-active.condition.card';
+import {
+  IsMaxDischargingLimitActiveConditionCard
+} from '../../src/cards/condition/is-max-discharging-limit-active.condition.card';
+import {IsAnyPowerLimitActiveConditionCard} from '../../src/cards/condition/is-any-power-limit-active.condition.card';
+import {SimpleValueChangedTrigger} from '../../src/cards/trigger/simple-value-changed.trigger';
+import {ActivatePowerLimitsActionCard} from '../../src/cards/action/activate-power-limits.action.card';
+import {ValueChanged} from '../../src/model/value-changed';
+import {DeactivatePowerLimitsActionCard} from '../../src/cards/action/deactivate-power-limits.action.card';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
 class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
+  private firmwareChangedTrigger: SimpleValueChangedTrigger<string> | null = null
+  private maxChargingLimitHasChangedTrigger: SimpleValueChangedTrigger<number> | null = null
+  private maxDischargingLimitHasChangedTrigger: SimpleValueChangedTrigger<number> | null = null
 
-  private firmwareChangedCard: FlowCardTriggerDevice | null = null;
+  private currentChargingConfig: ChargingConfiguration | null = null
 
   private loopId: NodeJS.Timeout |null = null
   private api: RscpApi | undefined = undefined
   private syncErrorCount: number = 0
   async onInit() {
     this.log('HomePowerStationDevice has been initialized');
-
-    this.firmwareChangedCard = this.homey.flow.getDeviceTriggerCard('firmware_has_changed')
+    this.setupActionCards()
+    this.setupConditionCards()
+    this.setupTriggerCards()
 
     setTimeout(() => {
       this.autoSync()
     }, 2000)
 
-    this.setupActionCards()
+
+  }
+
+  private setupTriggerCards() {
+    this.setupFirmwareChangedCard()
+    this.setupMaxChargingLimitChangedCard()
+    this.setupMaxDischargingLimitChangedCard()
+  }
+
+  private setupFirmwareChangedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('firmware_has_changed')
+    this.firmwareChangedTrigger = new SimpleValueChangedTrigger<string>('Firmware', this, card, this)
+  }
+
+  private setupMaxChargingLimitChangedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('max_charging_limit_has_changed')
+    this.maxChargingLimitHasChangedTrigger = new SimpleValueChangedTrigger<number>('Charging limit', this, card, this)
+  }
+
+  private setupMaxDischargingLimitChangedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('max_discharging_limit_has_changed')
+    this.maxDischargingLimitHasChangedTrigger = new SimpleValueChangedTrigger<number>('Discharging limit', this, card, this)
+  }
+
+  private setupConditionCards() {
+    this.setupIsMaxChargingPowerGreaterThan()
+    this.setupIsMaxDischargingPowerGreaterThan()
+    this.setupIsMaxChargingPowerLimitActive()
+    this.setupIsMaxDischargingPowerLimitActive()
+    this.setupIsAnyPowerLimitActive()
+  }
+
+  private setupIsMaxChargingPowerGreaterThan() {
+    const card = this.homey.flow.getConditionCard('is_max_charging_limit_greater_than')
+    card.registerRunListener(new IsMaxChargingLimitGreaterThanConditionCard().run)
+  }
+
+  private setupIsMaxDischargingPowerGreaterThan() {
+    const card = this.homey.flow.getConditionCard('is_max_discharging_limit_greater_than')
+    card.registerRunListener(new IsMaxDischargingLimitGreaterThanConditionCard().run)
+  }
+
+  private setupIsMaxChargingPowerLimitActive() {
+    const card = this.homey.flow.getConditionCard('is_max_charging_limit_active')
+    card.registerRunListener(new IsMaxChargingLimitActiveConditionCard().run)
+  }
+
+  private setupIsMaxDischargingPowerLimitActive() {
+    const card = this.homey.flow.getConditionCard('is_max_discharging_limit_active')
+    card.registerRunListener(new IsMaxDischargingLimitActiveConditionCard().run)
+  }
+
+  private setupIsAnyPowerLimitActive() {
+    const card = this.homey.flow.getConditionCard('is_any_power_limit_active')
+    card.registerRunListener(new IsAnyPowerLimitActiveConditionCard().run)
   }
 
   private setupActionCards() {
@@ -42,6 +120,19 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     this.setupConfigureMaxDischargingLimitActionCard()
     this.setupRemoveMaxDischargingLimitActionCard()
     this.setupRemoveAllLimitsActionCard()
+    this.setupReadChargingConfiguration()
+    this.setupActivatePowerLimitsCard()
+    this.setupDeactivatePowerLimitsCard()
+  }
+
+  private setupActivatePowerLimitsCard() {
+    const card = this.homey.flow.getActionCard('activate_configured_power_limits')
+    card.registerRunListener(new ActivatePowerLimitsActionCard().run)
+  }
+
+  private setupDeactivatePowerLimitsCard() {
+    const card = this.homey.flow.getActionCard('deactivate_configured_power_limits')
+    card.registerRunListener(new DeactivatePowerLimitsActionCard().run)
   }
 
   private setupConfigureMaxChargingLimitActionCard() {
@@ -67,6 +158,11 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   private setupRemoveAllLimitsActionCard() {
     const card = this.homey.flow.getActionCard('remove_all_power_limits')
     card.registerRunListener(new SetPowerLimitsToDefaultActionCard().run)
+  }
+
+  private setupReadChargingConfiguration() {
+    const card = this.homey.flow.getActionCard('provide_charging_configuration')
+    card.registerRunListener(new ProvideChargingConfigurationActionCard().run)
   }
 
   asSimple(): SimpleClass {
@@ -126,14 +222,22 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
             updateCapabilityValue('measure_house_consumption', result.houseConsumption, this)
             updateCapabilityValue('measure_battery', result.batteryChargingLevel * 100, this)
             const firmwareChange = updateCapabilityValue('firmware_version', result.firmwareVersion, this)
-            if (firmwareChange && firmwareChange.oldValue != null) {
-              const tokens = {
-                'old firmware version': firmwareChange.oldValue,
-                'new firmware version': firmwareChange.newValue
+
+            this.firmwareChangedTrigger?.runIfChanged(firmwareChange)
+            if (this.currentChargingConfig) {
+              this.log('Checking if charging limits have changed')
+              const maxChargingLimitChange: ValueChanged<number> = {
+                oldValue: this.readActiveMaxChargingLimit(this.currentChargingConfig),
+                newValue: this.readActiveMaxChargingLimit(result.chargingConfig)
               }
-              this.log('Firmware change detected. Triggering firmware changed card')
-              this.firmwareChangedCard?.trigger(this, tokens).then(this.log).catch(this.error)
+              this.maxChargingLimitHasChangedTrigger?.runIfChanged(maxChargingLimitChange)
+              const maxDischargingLimitChange: ValueChanged<number> = {
+                oldValue: this.readActiveMaxDischargingLimit(this.currentChargingConfig),
+                newValue: this.readActiveMaxDischargingLimit(result.chargingConfig)
+              }
+              this.maxDischargingLimitHasChangedTrigger?.runIfChanged(maxDischargingLimitChange)
             }
+            this.currentChargingConfig = result.chargingConfig
 
             this.log(result)
             this.syncErrorCount = 0
@@ -153,6 +257,20 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
           })
     })
 
+  }
+
+  private readActiveMaxChargingLimit(config: ChargingConfiguration): number {
+    if (config.currentLimitations.chargingLimitationsEnabled) {
+      return config.currentLimitations.maxCurrentChargingPower
+    }
+    return config.maxPossibleChargingPower
+  }
+
+  private readActiveMaxDischargingLimit(config: ChargingConfiguration): number {
+    if (config.currentLimitations.chargingLimitationsEnabled) {
+      return config.currentLimitations.maxCurrentDischargingPower
+    }
+    return config.maxPossibleDischargingPower
   }
 
   async onAdded() {
