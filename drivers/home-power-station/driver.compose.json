@@ -10,7 +10,8 @@
     "measure_battery_delivery",
     "measure_house_consumption",
     "measure_battery",
-    "firmware_version"
+    "firmware_version",
+    "charge_time"
   ],
   "platforms": [
     "local"

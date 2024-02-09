@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Emergency power reserve",
+    "de": "Notstromreserve"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "Wh",
+    "de": "Wh"
+  },
+  "icon": "/assets/images/emergency_power_reserve.svg",
+  "insights": true,
+  "decimals": 1
+}

@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Min cell temperature",
+    "de": "Min Zelltemperatur"
+  },
+  "units": {
+    "de": "°C",
+    "en": "°C"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/temp_min.svg",
+  "insights": true,
+  "decimals": 0
+}

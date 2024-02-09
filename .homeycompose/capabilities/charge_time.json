@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Rem. (dis)charging time",
+    "de": "Rest(ent)ladezeit"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/clock.svg",
+  "insights": false
+}

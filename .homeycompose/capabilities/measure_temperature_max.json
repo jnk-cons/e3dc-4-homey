@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Max cell temperature",
+    "de": "Max Zelltemperatur"
+  },
+  "units": {
+    "de": "°C",
+    "en": "°C"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/temp_max.svg",
+  "insights": true,
+  "decimals": 0
+}

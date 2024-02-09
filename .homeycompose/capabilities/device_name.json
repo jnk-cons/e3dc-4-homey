@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Name",
+    "de": "Name"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/badge.svg",
+  "insights": false
+}

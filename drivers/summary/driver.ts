@@ -41,7 +41,7 @@ class SummaryDriver extends Homey.Driver implements I18n{
       let station = homePowerStations[i];
       const stationData = await station.getData();
       const stationId = stationData.id;
-      this.log(stationData)
+
       const name = station.getName() + ' - ' + getTypeName(this.type, this)
       const settings: SummaryConfig = {
         stationId: stationId,

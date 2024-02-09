@@ -19,13 +19,15 @@ import {
     RequestChargingConfigurationCreator,
     ResultCode, SetPowerSettingsCreator,
     WriteChargingLimitsResult, WriteChargingLimitsResultConverter,
-    YearlySummaryConverter
+    YearlySummaryConverter,
+    DefaultBatteryService, EPTag, DefaultEmergencyPowerService, EmergencyPowerState
 } from 'easy-rscp';
 import {LiveData} from './model/live-data';
 import {SyncDataFrameConverter} from './converter/SyncDataFrameConverter';
 import {SummaryData} from './model/summary-data';
 import {SummaryType} from './model/summary.config';
 import {Logger} from './internal-api/logger';
+import {BatteryData, DCBData} from './model/battery-data';
 
 let connection: HomePowerPlantConnection | undefined = undefined
 let connectionFactory: HomePowerPlantConnectionFactory | undefined = undefined
@@ -203,6 +205,103 @@ export class RscpApi {
         })
     }
 
+    readBatteryData(allowReconnect: boolean = true, log: Logger): Promise<BatteryData[]> {
+        return new Promise<BatteryData[]>((resolve, reject) => {
+            log.log('readBatteryData: Requesting connection ...')
+            this.getOpenConnection(log)
+                .then(con => {
+                    const batteryService = new DefaultBatteryService(con)
+                    log.log('readBatteryData: Reading specification data ...')
+                    batteryService
+                        .readSpecification()
+                        .then(batterySpec => {
+                            log.log('readBatteryData: Reading specification data, answer received')
+                            log.log('readBatteryData: Reading Monitoring data ...')
+                            batteryService
+                                .readMonitoringData()
+                                .then(batteryStatus => {
+                                    log.log('readBatteryData: Reading Monitoring data, answer received')
+                                    const result: BatteryData[] = []
+                                    let dcbReadOutOk = false
+                                    for (let batteryIndex = 0; batteryIndex < batterySpec.length; batteryIndex++) {
+                                        let spec = batterySpec[batteryIndex]
+                                        let status = batteryStatus[batteryIndex]
+                                        if (status && status.dcbStatus && status.dcbStatus.length == spec.dcbSpecs.length) {
+                                            dcbReadOutOk = true
+                                            let dcbs: DCBData[] = []
+                                            for (let dcbIndex = 0; dcbIndex < spec.dcbSpecs.length; dcbIndex++) {
+                                                let dcbStatus = status.dcbStatus[dcbIndex]
+                                                dcbs.push({
+                                                    index: dcbIndex,
+                                                    voltage: dcbStatus.voltage,
+                                                    voltageAVG30s: dcbStatus.voltageAVG30s,
+                                                    currentA: dcbStatus.currentA,
+                                                    currentAVG30s: dcbStatus.currentAVG30s,
+                                                    temperaturesCelsius: dcbStatus.temperaturesCelsius,
+                                                })
+                                            }
+
+                                            result.push({
+                                                index: batteryIndex,
+                                                capacity: spec.capacityWh,
+                                                asoc: status.asoc,
+                                                name: spec.name,
+                                                maxChargingTempCelsius: spec.maxChargingTempCelsius,
+                                                minChargingTempCelsius: spec.minChargingTempCelsius,
+                                                maxChargeCurrentA: spec.maxChargeCurrentA,
+                                                maxDischargeCurrentA: spec.maxDischargeCurrentA,
+                                                designVoltage: spec.voltage,
+                                                connected: status.connected,
+                                                working: status.working,
+                                                inService: status.inService,
+                                                voltage: status.voltage,
+                                                dcbs: dcbs
+                                            })
+                                        }
+                                    }
+                                    if (dcbReadOutOk) {
+                                        resolve(result)
+                                    }
+                                    else {
+                                        log.error('readBatteryData: DCB Readout failed. Spec and status did not match')
+                                        reject('DCB Readout failed')
+                                    }
+
+                                })
+                                .catch(reason => {
+                                    log.error('readBatteryData: Failed to read battery status')
+                                    log.error(reason)
+                                    this.closeConnection(log).catch(reason1 => {
+                                        log.error('readBatteryData: failed to close connection')
+                                        log.error(reason1)
+                                    })
+                                    reject(reason)
+                                })
+                        })
+                        .catch(reason => {
+                            log.error('readBatteryData: Failed to read battery spec')
+                            log.error(reason)
+                            if (allowReconnect) {
+                                log.error('readBatteryData: Try to reconnect ...')
+                                this.closeConnection(log)
+                                    .then(_ => this.readBatteryData(false, log)
+                                        .then(resultAfterReconnect => resolve(resultAfterReconnect))
+                                        .catch(reason1 => {
+                                            log.error('readBatteryData: Failed to read battery data')
+                                            log.error(reason1)
+                                            reject(reason)
+                                        })
+                                    ).catch(reason1 => {
+                                        log.error('readBatteryData: Failed to close connection')
+                                        log.error(reason1)
+                                        reject(reason)
+                                    })
+                            }
+                        })
+                })
+        })
+    }
+
     private parseSummaryData(request: Frame, response: Frame, summaryType: SummaryType): SummaryData {
         let rscpResult: HistoryData
         if (summaryType == SummaryType.YESTERDAY || summaryType == SummaryType.TODAY) {
@@ -327,6 +426,74 @@ export class RscpApi {
         return Math.round((lastDayOfYear.getTime() - firstDayOfYear.getTime()) / millisecondsInDay) + 1;
     }
 
+    startManualCharge(amountWh: number, allowReconnect: boolean = true, log: Logger): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            log.log('startManualCharge(' + amountWh + '): called. Requesting connection')
+            this.getOpenConnection(log)
+                .then(connection => {
+                    log.log('startManualCharge(' + amountWh + '): Connection received')
+                    const request = new FrameBuilder()
+                        .addData(
+                            new DataBuilder().tag(EMSTag.REQ_START_MANUAL_CHARGE).uint32(amountWh).build()
+                        )
+                        .build()
+                    connection
+                        .send(request)
+                        .then(response => {
+                            const result = response.booleanByTag(EMSTag.START_MANUAL_CHARGE)
+                            resolve(result)
+                        })
+                        .catch(reason => this.handleStartManualChargeError(
+                            amountWh,
+                            false,
+                            reason,
+                            resolve,
+                            reject,
+                            log
+                        ))
+
+                })
+                .catch(reason => this.handleStartManualChargeError(
+                    amountWh,
+                    false,
+                    reason,
+                    resolve,
+                    reject,
+                    log
+                ))
+        })
+    }
+
+    private handleStartManualChargeError(
+        amountWh: number,
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: boolean | PromiseLike<boolean>) => void),
+        reject: ((reason?: any) => void),
+        log: Logger,
+
+    ) {
+        if (allowReconnect) {
+            log.log('startManualCharge(' + amountWh + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection(log)
+                .finally(() => {
+                    this.startManualCharge(amountWh,false, log)
+                        .then(data => {
+                            log.log('startManualCharge(' + amountWh + ': Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('startManualCharge(' + amountWh + ': Retry failed also: ' + e)
+                            reject(e)
+                        })
+                })
+        }
+        else {
+            log.log('startManualCharge(' + amountWh + ': Received error. Error: ' + causingError)
+            reject(causingError)
+        }
+    }
+
     readLiveData(allowReconnect: boolean = true, log: Logger): Promise<LiveData> {
         return new Promise<LiveData>((resolve, reject) => {
             const date = new Date()
@@ -344,7 +511,14 @@ export class RscpApi {
                             new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build(),
                             new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build(),
                             new DataBuilder().tag(EMSTag.REQ_GET_POWER_SETTINGS).build(),
-                            new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build()
+                            new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build(),
+                            new DataBuilder().tag(EMSTag.REQ_GET_MANUAL_CHARGE).build(),
+                            new DataBuilder().tag(EPTag.REQ_EP_RESERVE).build(),
+                            new DataBuilder().tag(EPTag.REQ_IS_POSSIBLE).build(),
+                            new DataBuilder().tag(EPTag.REQ_IS_GRID_CONNECTED).build(),
+                            new DataBuilder().tag(EPTag.REQ_IS_ISLAND_GRID).build(),
+                            new DataBuilder().tag(EPTag.REQ_IS_INVALID_STATE).build(),
+                            new DataBuilder().tag(EPTag.REQ_IS_READY_FOR_SWITCH).build(),
                         )
                         .build();
                     log.log('readLiveData: Sending request frame ...')
@@ -476,20 +650,81 @@ export class RscpApi {
         if (allowReconnect) {
             log.log('readChargingConfiguration: Received error. Try to reconnect ... (Error: ' + causingError + ')')
             this.closeConnection(log)
-            this.readChargingConfiguration( false, log)
-                .then(data => {
-                    log.log('readChargingConfiguration: Retry was successfull')
-                    resolve(data)
-                })
-                .catch(e => {
-                    log.log('readChargingConfiguration: Retry failed also: ' + e)
-                    reject(e)
+                .finally(() => {
+                    this.readChargingConfiguration( false, log)
+                        .then(data => {
+                            log.log('readChargingConfiguration: Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('readChargingConfiguration: Retry failed also: ' + e)
+                            reject(e)
+                        })
                 })
         }
         else {
             log.log('readChargingConfiguration: Received error. Error: ' + causingError)
             reject(causingError)
         }
+    }
+
+    private handleWriteEmergencyPowerReserveError(
+        amount: number,
+        asPercentage: boolean,
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: EmergencyPowerState | PromiseLike<EmergencyPowerState>) => void),
+        reject: ((reason?: any) => void),
+        log: Logger,
+
+    ) {
+        if (allowReconnect) {
+            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection(log)
+                .finally(() => {
+                    this.writeEmergencyPowerReserve( amount, asPercentage, false, log)
+                        .then(data => {
+                            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Retry failed also: ' + e)
+                            reject(e)
+                        })
+                })
+
+        }
+        else {
+            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': ' + causingError)
+            reject(causingError)
+        }
+    }
+
+    writeEmergencyPowerReserve(amount: number, asPercentage: boolean, allowReconnect: boolean = true, log: Logger): Promise<EmergencyPowerState> {
+        return new Promise<EmergencyPowerState>((resolve, reject) => {
+            log.log('writeEmergencyPowerReserve(' + amount + asPercentage + '): Requesting connection ...')
+            this.getOpenConnection(log)
+                .then(con => {
+                    log.log('writeEmergencyPowerReserve(' + amount + asPercentage + '): connection received')
+                    const service = new DefaultEmergencyPowerService(con)
+                    let promise: Promise<EmergencyPowerState>
+                    if (asPercentage) {
+                        promise = service.setReservePercentage(amount / 100.0)
+                    }
+                    else {
+                        promise = service.setReserveWH(amount)
+                    }
+
+                    promise
+                        .then(value => {
+                            log.log('writeEmergencyPowerReserve(' + amount + asPercentage + '): answer received')
+                            resolve(value)
+                        })
+                        .catch(reason => this.handleWriteEmergencyPowerReserveError(amount, asPercentage, allowReconnect, reason, resolve, reject, log))
+
+                })
+                .catch(e => this.handleWriteEmergencyPowerReserveError(amount, asPercentage, allowReconnect, e, resolve, reject, log))
+        })
     }
 
 }

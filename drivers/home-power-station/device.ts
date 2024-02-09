@@ -1,6 +1,12 @@
 import Homey, {FlowCardTriggerDevice, SimpleClass} from 'homey';
 import {PowerStationConfig} from '../../src/model/power-station.config';
-import {ChargingConfiguration, E3dcConnectionData} from 'easy-rscp';
+import {
+  BatteryUnit,
+  ChargingConfiguration,
+  E3dcConnectionData,
+  EmergencyPowerState,
+  ManualChargeState
+} from 'easy-rscp';
 import {RscpApi} from '../../src/rscp-api';
 import {HomePowerStation} from '../../src/model/home-power-station';
 import {updateCapabilityValue} from '../../src/utils/capability-utils';
@@ -34,6 +40,27 @@ import {SimpleValueChangedTrigger} from '../../src/cards/trigger/simple-value-ch
 import {ActivatePowerLimitsActionCard} from '../../src/cards/action/activate-power-limits.action.card';
 import {ValueChanged} from '../../src/model/value-changed';
 import {DeactivatePowerLimitsActionCard} from '../../src/cards/action/deactivate-power-limits.action.card';
+import {BatteryModuleConfig} from '../../src/model/battery-module.config';
+import {BatteryModule} from '../../src/model/battery-module';
+import {TriggerCard} from '../../src/cards/trigger-card';
+import {ManualBatteryChargingStartedTrigger} from '../../src/cards/trigger/manual-battery-charging-started.trigger';
+import {ManualBatteryChargingStoppedTrigger} from '../../src/cards/trigger/manual-battery-charging-stopped.trigger';
+import {IsManualChargeActiveConditionCard} from '../../src/cards/condition/is-manual-charge-active.condition.card';
+import {LiveData} from '../../src/model/live-data';
+import {StopManualBatteryChargeActionCard} from '../../src/cards/action/stop-manual-battery-charge.action.card';
+import {
+  StartManualBatteryChargeActionPercentageCard,
+  StartManualBatteryChargeWhActionCard
+} from '../../src/cards/action/start-manual-battery-charge.action.card';
+import {ConfigureEmergencyReserveActionCard} from '../../src/cards/action/configure-emergency-reserve.action.card';
+import {RemoveEmergencyReserveActionCard} from '../../src/cards/action/remove-emergency-reserve.action.card';
+import {IslandModeStartedTrigger} from '../../src/cards/trigger/island-mode-started.trigger';
+import {IslandModeStoppedTrigger} from '../../src/cards/trigger/island-mode-stopped.trigger';
+import {
+  IsEmergencyPowerReserveGreaterThanConditionCard
+} from '../../src/cards/condition/is-emergency-power-reserve-greater-than.condition.card';
+import {IsIslandModeActiveConditionCard} from '../../src/cards/condition/is-island-mode-active.condition.card';
+import {IsIslandModePossibleConditionCard} from '../../src/cards/condition/is-island-mode-possible.condition.card';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
@@ -41,12 +68,20 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   private firmwareChangedTrigger: SimpleValueChangedTrigger<string> | null = null
   private maxChargingLimitHasChangedTrigger: SimpleValueChangedTrigger<number> | null = null
   private maxDischargingLimitHasChangedTrigger: SimpleValueChangedTrigger<number> | null = null
+  private emergencyPowerReserveChangedTrigger: SimpleValueChangedTrigger<number> | null = null
+  private manualBatteryChargingStartedTrigger: TriggerCard<undefined> | null = null
+  private manualBatteryChargingStoppedTrigger: TriggerCard<number> | null = null
+  private islandModeStartedTrigger: TriggerCard<undefined> | null = null
+  private islandModeStoppedTrigger: TriggerCard<undefined> | null = null
 
   private currentChargingConfig: ChargingConfiguration | null = null
+  private currentManualChargeState: ManualChargeState | null = null
+  private currentEmergencyPowerState: EmergencyPowerState | null = null
 
   private loopId: NodeJS.Timeout |null = null
   private api: RscpApi | undefined = undefined
   private syncErrorCount: number = 0
+  private updateBatteryData = true
   async onInit() {
     this.log('HomePowerStationDevice has been initialized');
     this.setupActionCards()
@@ -56,14 +91,54 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     setTimeout(() => {
       this.autoSync()
     }, 2000)
-
-
   }
+
+  getCurrentSOC(): number {
+    const number = this.getCapabilityValue('measure_battery')
+    if (number) {
+      return number / 100.0;
+    }
+    return  0.0
+  }
+
+  getManualChargeState(): ManualChargeState | null {
+    return this.currentManualChargeState;
+  }
+
+  getEmergencyPowerState(): EmergencyPowerState | null {
+    return this.currentEmergencyPowerState;
+  }
+
+
 
   private setupTriggerCards() {
     this.setupFirmwareChangedCard()
     this.setupMaxChargingLimitChangedCard()
     this.setupMaxDischargingLimitChangedCard()
+    this.setupStartManualChargeCards()
+    this.setupManualBatteryChargingStartedCard()
+    this.setupManualBatteryChargingStoppedCard()
+    this.setupIslandModeCards()
+    this.setupEmergencyPowerReserveChangedCard()
+  }
+
+  private setupIslandModeCards() {
+    let card = this.homey.flow.getDeviceTriggerCard('island_mode_started')
+    this.islandModeStartedTrigger = new IslandModeStartedTrigger(this, card, this)
+
+    card = this.homey.flow.getDeviceTriggerCard('island_mode_stopped')
+    this.islandModeStoppedTrigger = new IslandModeStoppedTrigger(this, card, this)
+  }
+
+
+  private setupManualBatteryChargingStoppedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('manual_battery_charging_stopped')
+    this.manualBatteryChargingStoppedTrigger = new ManualBatteryChargingStoppedTrigger(this, card, this)
+  }
+
+  private setupManualBatteryChargingStartedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('manual_battery_charging_started')
+    this.manualBatteryChargingStartedTrigger = new ManualBatteryChargingStartedTrigger(this, card, this)
   }
 
   private setupFirmwareChangedCard() {
@@ -81,12 +156,35 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     this.maxDischargingLimitHasChangedTrigger = new SimpleValueChangedTrigger<number>('Discharging limit', this, card, this)
   }
 
+  private setupEmergencyPowerReserveChangedCard() {
+    const card = this.homey.flow.getDeviceTriggerCard('emergency_power_reserve_has_changed')
+    this.emergencyPowerReserveChangedTrigger = new SimpleValueChangedTrigger<number>('Emergency power reserve', this, card, this)
+  }
+
   private setupConditionCards() {
     this.setupIsMaxChargingPowerGreaterThan()
     this.setupIsMaxDischargingPowerGreaterThan()
     this.setupIsMaxChargingPowerLimitActive()
     this.setupIsMaxDischargingPowerLimitActive()
     this.setupIsAnyPowerLimitActive()
+    this.setupIsManualChargeActive()
+    this.setupEmergencyPowerConditionCards()
+  }
+
+  private setupEmergencyPowerConditionCards() {
+    let card = this.homey.flow.getConditionCard('is_emergency_power_reserve_greater_than')
+    card.registerRunListener(new IsEmergencyPowerReserveGreaterThanConditionCard().run)
+
+    card = this.homey.flow.getConditionCard('is_island_mode_active')
+    card.registerRunListener(new IsIslandModeActiveConditionCard().run)
+
+    card = this.homey.flow.getConditionCard('is_island_mode_possible')
+    card.registerRunListener(new IsIslandModePossibleConditionCard().run)
+  }
+
+  private setupIsManualChargeActive() {
+    const card = this.homey.flow.getConditionCard('is_manual_charge_active')
+    card.registerRunListener(new IsManualChargeActiveConditionCard().run)
   }
 
   private setupIsMaxChargingPowerGreaterThan() {
@@ -123,6 +221,33 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     this.setupReadChargingConfiguration()
     this.setupActivatePowerLimitsCard()
     this.setupDeactivatePowerLimitsCard()
+    this.setupStartManualChargeCards()
+    this.setupStopManualChargeCards()
+    this.setupConfigureEmergencyPowerReserve()
+    this.setupRemoveEmergencyPowerReserve()
+  }
+
+  private setupRemoveEmergencyPowerReserve() {
+    const card = this.homey.flow.getActionCard('remove_emergency_reserve')
+    card.registerRunListener(new RemoveEmergencyReserveActionCard().run)
+  }
+
+  private setupConfigureEmergencyPowerReserve() {
+    const card = this.homey.flow.getActionCard('configure_emergency_reserve')
+    card.registerRunListener(new ConfigureEmergencyReserveActionCard().run)
+  }
+
+  private setupStopManualChargeCards() {
+    const card = this.homey.flow.getActionCard('stop_manual_battery_charging')
+    card.registerRunListener(new StopManualBatteryChargeActionCard().run)
+  }
+
+  private setupStartManualChargeCards() {
+    const card = this.homey.flow.getActionCard('start_manual_battery_charging_amount')
+    card.registerRunListener(new StartManualBatteryChargeWhActionCard().run)
+
+    const cardPercemtage = this.homey.flow.getActionCard('start_manual_battery_charging_percentage')
+    cardPercemtage.registerRunListener(new StartManualBatteryChargeActionPercentageCard().run)
   }
 
   private setupActivatePowerLimitsCard() {
@@ -191,12 +316,34 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     return this.getData().id;
   }
 
+  public getBatteryCapacity(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const storedSettings: PowerStationConfig = this.getSettings();
+      if (storedSettings.shouldCapacityOverwritten) {
+        resolve(storedSettings.customCapacity)
+      }
+      else {
+        const api = this.getApi()
+        api.readBatteryData(true, this)
+            .then(value => {
+              resolve(value[0].capacity)
+            })
+            .catch(reason => {
+              this.error('getBatteryCapacity: Error reading battery data')
+              this.error(reason)
+              reject(reason)
+            })
+      }
+    })
+}
+
   public getApi(): RscpApi {
     if (this.api) {
       return this.api
     }
     this.api = new RscpApi()
     const storedSettings: PowerStationConfig = this.getSettings();
+    this.log(storedSettings)
     this.api.init({
       address: storedSettings.stationAddress,
       port: storedSettings.stationPort,
@@ -216,35 +363,20 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       station
           .readLiveData(true, this)
           .then(result => {
+            this.log(result)
+
             updateCapabilityValue('measure_pv_delivery', result.pvDelivery, this)
             updateCapabilityValue('measure_grid_delivery', result.gridDelivery, this)
             updateCapabilityValue('measure_battery_delivery', result.batteryDelivery * -1, this)
             updateCapabilityValue('measure_house_consumption', result.houseConsumption, this)
             updateCapabilityValue('measure_battery', result.batteryChargingLevel * 100, this)
-            const firmwareChange = updateCapabilityValue('firmware_version', result.firmwareVersion, this)
-
-            this.firmwareChangedTrigger?.runIfChanged(firmwareChange)
-            if (this.currentChargingConfig) {
-              this.log('Checking if charging limits have changed')
-              const maxChargingLimitChange: ValueChanged<number> = {
-                oldValue: this.readActiveMaxChargingLimit(this.currentChargingConfig),
-                newValue: this.readActiveMaxChargingLimit(result.chargingConfig)
-              }
-              this.maxChargingLimitHasChangedTrigger?.runIfChanged(maxChargingLimitChange)
-              const maxDischargingLimitChange: ValueChanged<number> = {
-                oldValue: this.readActiveMaxDischargingLimit(this.currentChargingConfig),
-                newValue: this.readActiveMaxDischargingLimit(result.chargingConfig)
-              }
-              this.maxDischargingLimitHasChangedTrigger?.runIfChanged(maxDischargingLimitChange)
-            }
-            this.currentChargingConfig = result.chargingConfig
-
-            this.log(result)
-            this.syncErrorCount = 0
-            if (!this.getAvailable()) {
-              this.setAvailable().then()
-            }
-            resolve(undefined)
+            this.handleChargeTimeCapability(result);
+            this.handleFirmwareChange(result);
+            this.handleChargingConfigurationChanges(result);
+            this.handleManualChargeStateChanges(result)
+            this.handleEmergencyPowerStateChanges(result)
+            this.handleAvailability();
+            this.handleBatteryData(station, result, resolve);
           })
           .catch(e => {
             this.error('Error reading live data')
@@ -257,6 +389,155 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
           })
     })
 
+  }
+
+  private handleChargeTimeCapability(data: LiveData) {
+    this.getBatteryCapacity()
+        .then(capacityWh => {
+          let targetWh = 0
+          if (data.batteryDelivery > 0) {
+            console.log('battery is discharging')
+            targetWh = Math.abs(capacityWh * data.batteryChargingLevel)
+            console.log('' + targetWh + 'Wh stored in the battery. capacity: ' + capacityWh + ', level: ' + data.batteryChargingLevel)
+          } else {
+            console.log('battery is charging')
+            targetWh = Math.abs(capacityWh * (1-data.batteryChargingLevel))
+            console.log('' + targetWh + 'Wh missing to full battery. capacity: ' + capacityWh + ', level: ' + data.batteryChargingLevel)
+          }
+
+          const minutes =  targetWh / Math.abs(data.batteryDelivery) * 60
+          const batteryRemainingHours = Math.floor(minutes / 60);
+          let batteryRemainingMin = Math.floor(minutes % 60);
+          let hoursAsString = '' + batteryRemainingHours
+          let minAsString = '' + batteryRemainingMin
+          if (hoursAsString.length == 1) {
+            hoursAsString = '0' + hoursAsString
+          }
+          if (minAsString.length == 1) {
+            minAsString = '0' + minAsString
+          }
+
+          let finalValue;
+          if (batteryRemainingHours > 24) {
+            finalValue = '> 24h'
+          }
+          else if (batteryRemainingHours == 0 && batteryRemainingMin < 10) {
+            finalValue = '< 10min'
+          }
+          else {
+            finalValue = hoursAsString + ':' + minAsString
+          }
+
+          updateCapabilityValue('charge_time', finalValue, this)
+        })
+  }
+
+  private handleBatteryData(station: RscpApi, result: LiveData, resolve: (value: (PromiseLike<unknown> | unknown)) => void) {
+    if (this.updateBatteryData) {
+      this.log('Updating battery devices')
+      this.updateBatteryData = false
+      station
+          .readBatteryData(true, this)
+          .then(batteryData => {
+            const storedSettings: PowerStationConfig = this.getSettings()
+            if (storedSettings.rscpCapacity == '0') {
+              storedSettings.rscpCapacity = batteryData[0].capacity.toString()
+              this.setSettings(storedSettings).then(value => this.log('Stored RSCP capacity'))
+            }
+
+            const batteryDevices = this.homey.drivers.getDriver('battery-module').getDevices()
+            const stationId = this.getId()
+            batteryDevices.forEach(currentDevice => {
+              const batteryConfig: BatteryModuleConfig = currentDevice.getStoreValue('settings')
+              if (batteryConfig.stationId == stationId) {
+                this.log('Updating battery device: ' + currentDevice.getName())
+                const batteryDevice = currentDevice as unknown as BatteryModule
+                this.getBatteryCapacity().then(capa => {
+                  batteryDevice.sync(
+                      batteryData[0],
+                      result.batteryChargingLevel * 100,
+                      capa / 1000.0,
+                      result.chargingConfig,
+                      result.emergencyPowerState)
+                })
+
+              }
+            })
+          })
+          .catch(reason => {
+            this.log('Error reading battery monitoring data')
+            this.error(reason)
+          })
+          .finally(() => resolve(undefined))
+    } else {
+      this.updateBatteryData = true
+      resolve(undefined)
+    }
+  }
+
+  private handleAvailability() {
+    this.syncErrorCount = 0
+    if (!this.getAvailable()) {
+      this.setAvailable().then()
+    }
+  }
+
+  private handleChargingConfigurationChanges(result: LiveData) {
+    if (this.currentChargingConfig) {
+      this.log('Checking if charging limits have changed')
+      const maxChargingLimitChange: ValueChanged<number> = {
+        oldValue: this.readActiveMaxChargingLimit(this.currentChargingConfig),
+        newValue: this.readActiveMaxChargingLimit(result.chargingConfig)
+      }
+      this.maxChargingLimitHasChangedTrigger?.runIfChanged(maxChargingLimitChange)
+      const maxDischargingLimitChange: ValueChanged<number> = {
+        oldValue: this.readActiveMaxDischargingLimit(this.currentChargingConfig),
+        newValue: this.readActiveMaxDischargingLimit(result.chargingConfig)
+      }
+      this.maxDischargingLimitHasChangedTrigger?.runIfChanged(maxDischargingLimitChange)
+    }
+    this.currentChargingConfig = result.chargingConfig
+  }
+
+  private handleManualChargeStateChanges(result: LiveData) {
+    if (this.currentManualChargeState) {
+      if (this.currentManualChargeState.active && !result.manualChargeState.active) {
+        this.manualBatteryChargingStoppedTrigger?.trigger(result.manualChargeState.chargedEnergyWh)
+      }
+      else if (!this.currentManualChargeState.active && result.manualChargeState.active) {
+        this.manualBatteryChargingStartedTrigger?.trigger(undefined)
+      }
+    }
+    this.currentManualChargeState = result.manualChargeState
+  }
+
+  private handleEmergencyPowerStateChanges(result: LiveData) {
+    if (this.currentEmergencyPowerState) {
+      if (this.currentEmergencyPowerState.island && !result.emergencyPowerState.island) {
+        this.islandModeStoppedTrigger?.trigger(undefined)
+      }
+      else if (!this.currentEmergencyPowerState.island && result.emergencyPowerState.island) {
+        this.islandModeStartedTrigger?.trigger(undefined)
+      }
+
+      const reserveChange: ValueChanged<number> = {
+        oldValue: this.currentEmergencyPowerState.reserveWh,
+        newValue: result.emergencyPowerState.reserveWh
+      }
+      this.emergencyPowerReserveChangedTrigger?.runIfChanged(reserveChange)
+    }
+    else {
+      if (result.emergencyPowerState.island) {
+        this.islandModeStartedTrigger?.trigger(undefined)
+      }
+    }
+    this.currentEmergencyPowerState = result.emergencyPowerState
+  }
+
+  private handleFirmwareChange(result: LiveData) {
+    const firmwareChange = updateCapabilityValue('firmware_version', result.firmwareVersion, this)
+
+    this.firmwareChangedTrigger?.runIfChanged(firmwareChange)
   }
 
   private readActiveMaxChargingLimit(config: ChargingConfiguration): number {

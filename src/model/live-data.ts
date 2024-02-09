@@ -1,4 +1,4 @@
-import {ChargingConfiguration} from 'easy-rscp';
+import {ChargingConfiguration, EmergencyPowerState, ManualChargeState} from 'easy-rscp';
 
 export interface LiveData {
     pvDelivery: number
@@ -8,4 +8,6 @@ export interface LiveData {
     batteryChargingLevel: number
     firmwareVersion: string
     chargingConfig: ChargingConfiguration
+    manualChargeState: ManualChargeState,
+    emergencyPowerState: EmergencyPowerState
 }

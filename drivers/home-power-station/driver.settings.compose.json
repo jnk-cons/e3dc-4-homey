@@ -28,7 +28,7 @@
         },
         "value": "",
         "hint": {
-          "en": "Passwort zum E3DC Portal",
+          "en": "Password to the E3DC portal",
           "de": "Passwort zum E3DC Portal"
         }
       },
@@ -71,6 +71,56 @@
         "hint": {
           "en": "Port of the home power station (should be 5033, or 5034 for farming)",
           "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
+        }
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Battery information",
+      "de": "Batteriedaten"
+    },
+    "children": [
+      {
+        "id": "rscpCapacity",
+        "type": "label",
+        "label": {
+          "en": "Capacity according to home power station (Wh)",
+          "de": "Kapazität laut Hauskraftwerk (Wh)"
+        },
+        "value": "0",
+        "hint": {
+          "en": "Contains the battery capacity as supplied by the home power station via the interface.",
+          "de": "Enthält die Batteriekapazität, wie sie vom Hauskraftwerk über die Schnittstelle geliefert wird."
+        }
+      },
+      {
+        "id": "shouldCapacityOverwritten",
+        "type": "checkbox",
+        "value": false,
+        "label": {
+          "en": "Use your own capacity value?",
+          "de": "Eigenen Kapazitätswert verwenden?"
+        },
+        "hint": {
+          "en": "If the switch is selected, the self-specified battery capacity is used.",
+          "de": "Wenn der Schalter gewählt ist, wird die selbst angegebene Batteriekapazität verwendet."
+        }
+      },
+      {
+        "id": "customCapacity",
+        "type": "number",
+        "label": {
+          "en": "Own capacity value (Wh)",
+          "de": "Eigener Kapazitätswert (Wh)"
+        },
+        "value": 0,
+        "min": 0,
+        "max": 200000,
+        "hint": {
+          "en": "Self-defined capacity value of the battery. Only used if the corresponding switch has been selected.",
+          "de": "Selbst definierter Kapazitätswert der Batterie. Wird nur verwendet, wenn der entsprechende Schalter ausgewählt wurde."
         }
       }
     ]

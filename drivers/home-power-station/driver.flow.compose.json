@@ -331,6 +331,138 @@
           }
         }
       ]
+    },
+    {
+      "id": "start_manual_battery_charging_amount",
+      "title": {
+        "de": "Starte eine manuelle Speicherladung",
+        "en": "Start a manual battery charge"
+      },
+      "titleFormatted": {
+        "de": "Lade [[amount]] Wh zusätzlich in die Batterie",
+        "en": "Charge [[amount]] Wh additionally into the battery"
+      },
+      "hint": {
+        "de": "Es wird ein manueller Ladevorgang gestartet. Es wird die angegebene Energiemenge in Wh zusätzlich zum jetzigen Ladestand geladen (Bis max 100%). Achtung: Bei den meisten Hauskraftwerken kann eine manuelle Speicherladung nur einmal am Tag ausgelöst werden",
+        "en": "A manual charging process is started. The specified amount of energy in Wh is charged in addition to the current charge level (up to max. 100%). Attention: With most home power stations, manual storage charging can only be triggered once a day"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "amount",
+          "title": {
+            "de": "Energiemenge",
+            "en": "Amount of energy"
+          },
+          "required": true,
+          "min": 200,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "start_manual_battery_charging_percentage",
+      "title": {
+        "de": "Lade die Batterie auf",
+        "en": "Charge the battery"
+      },
+      "titleFormatted": {
+        "de": "Lade die Batterie auf annährend [[amount]]% auf",
+        "en": "Charge the battery to approximately [[amount]]%"
+      },
+      "hint": {
+        "de": "Es wird ein manueller Ladevorgang gestartet. Die Batterie wird ca. auf den angegebenen Prozentwert geladen. Achtung: Bei den meisten Hauskraftwerken kann eine manuelle Speicherladung nur einmal am Tag ausgelöst werden",
+        "en": "A manual charging process is started. The battery is charged to approximately the specified percentage value. Attention: With most home power stations, manual storage charging can only be triggered once a day"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "amount",
+          "title": {
+            "de": "Zielladestand",
+            "en": "Target charge level"
+          },
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 1
+        }
+      ]
+    },
+    {
+      "id": "stop_manual_battery_charging",
+      "title": {
+        "de": "Stoppt einen manuellen Ladevorgang",
+        "en": "Stops a manual charging process"
+      },
+      "hint": {
+        "de": "Wenn ein manueller Ladevorgang läuft, wird er beim Ausführen dieser Karte gestoppt",
+        "en": "If a manual charging process is running, it is stopped when this card is executed"
+      }
+    },
+    {
+      "id": "configure_emergency_reserve",
+      "title": {
+        "de": "Setzt die Notstromreserve",
+        "en": "Sets the emergency power reserve"
+      },
+      "titleFormatted": {
+        "de": "Setze die Notstromreserve auf [[amount]][[unit]]",
+        "en": "Set the emergency power reserve to [[amount]][[unit]]"
+      },
+      "hint": {
+        "de": "Setzt die Notstromreserve des Hauskraftwerks",
+        "en": "Sets the emergency power reserve of the home power station"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "amount",
+          "title": {
+            "de": "Reserve",
+            "en": "Reserve"
+          },
+          "required": true,
+          "min": 0,
+          "step": 1
+        },
+        {
+          "type": "dropdown",
+          "name": "unit",
+          "title": {
+            "en": "Unit",
+            "de": "Einheit"
+          },
+          "required": true,
+          "values": [
+            {
+              "id": "wh",
+              "label": {
+                "de": "Wh",
+                "en": "Wh"
+              }
+            },
+            {
+              "id": "percentage",
+              "label": {
+                "de": "%",
+                "en": "%"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "remove_emergency_reserve",
+      "title": {
+        "de": "Entfernt die Notstromreserve",
+        "en": "Removes the emergency power reserve"
+      },
+      "hint": {
+        "de": "Entfernt die Notrstromreserve des Hauskraftwerks. Nach dem Ausführen der Karte steht die gesamte Batteriekapazität zur normalen Energieversorgung zur Verfügung",
+        "en": "Removes the emergency power reserve of the home power station. After executing the card, the entire battery capacity is available for normal energy supply"
+      }
     }
   ],
   "triggers": [
@@ -417,6 +549,89 @@
           "title": {
             "de": "Neue max. Entladeleistung (W)",
             "en": "New max. discharging power (W)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "manual_battery_charging_started",
+      "title": {
+        "de": "Manuelle Speicherladung gestartet",
+        "en": "Manual battery charging started"
+      },
+      "hint": {
+        "de": "Wird ausgelöst, sobald eine manuelle Speicherladung begonnen wurde",
+        "en": "Is triggered as soon as manual storage loading has been started"
+      }
+    },
+    {
+      "id": "manual_battery_charging_stopped",
+      "title": {
+        "de": "Manuelle Speicherladung beendet oder gestoppt",
+        "en": "Manual storage charging ended or stopped"
+      },
+      "hint": {
+        "de": "Wird ausgelöst, sobald eine manuelle Speicherladung beendet oder abgebrochen wurde",
+        "en": "Triggered as soon as a manual storage loading is completed or canceled"
+      },
+      "tokens": [
+        {
+          "name": "loadedEnergy",
+          "type": "number",
+          "title": {
+            "de": "geladene Energiemenge (Wh)",
+            "en": "Charged amount of energy (Wh)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "island_mode_started",
+      "title": {
+        "de": "Inselbetrieb (Notstrom) begonnen",
+        "en": "Island operation (emergency power) started"
+      },
+      "hint": {
+        "de": "Wird ausgelöst, sobald das Hauskraftwerk in den Inselbetrieb umgeschaltet hat. Dies geschieht im Rahmen der Notstromfunktion",
+        "en": "Is triggered as soon as the home power station has switched to stand-alone operation. This is done as part of the emergency power function"
+      }
+    },
+    {
+      "id": "island_mode_stopped",
+      "title": {
+        "de": "Inselbetrieb (Notstrom) beendet",
+        "en": "Island operation (emergency power) beendet"
+      },
+      "hint": {
+        "de": "Wird ausgelöst, sobald das Hauskraftwerk in den normalen Betrieb zurückgeschaltet hat. Dies geschieht im Rahmen der Notstromfunktion",
+        "en": "Is triggered as soon as the home power station has switched back to normal operation. This is done as part of the emergency power function"
+      }
+    },
+    {
+      "id": "emergency_power_reserve_has_changed",
+      "title": {
+        "de": "Die Notstromreserve wurde geändert",
+        "en": "The emergency power reserve has been changed"
+      },
+      "hint": {
+        "de": "Wird ausgelöst, sobald sich die eingestellte Notstromreserve geändert hat",
+        "en": "Is triggered as soon as the set emergency power reserve has changed"
+      },
+      "tokens": [
+        {
+          "name": "old",
+          "type": "number",
+          "title": {
+            "de": "Alte Notstromreserve in Wh",
+            "en": "Old emergency power reserve in Wh"
+          }
+        },
+        {
+          "name": "new",
+          "type": "number",
+          "title": {
+            "de": "Neue Notstromreserve in Wh",
+            "en": "New emergency power reserve in Wh"
           }
         }
       ]
@@ -540,6 +755,80 @@
       "title": {
         "de": "Die maximale Ladeleistung und/oder maximale Entladeleistung ist aktuell !{{limitiert|nicht limitiert}}",
         "en": "The maximum charging power and/or the maximum discharging power is currently !{{limited|not limited}}"
+      }
+    },
+    {
+      "id": "is_manual_charge_active",
+      "title": {
+        "de": "Eine manuelle Speicherladung ist !{{aktiv|nicht aktiv}}",
+        "en": "Manual battery charging is !{{active|not active}}"
+      }
+    },
+    {
+      "id": "is_emergency_power_reserve_greater_than",
+      "title": {
+        "de": "Die eingestellte Notstromreserve ist !{{größer|kleiner}} als",
+        "en": "The set emergency power reserve is !{{larger|smaller}} than"
+      },
+      "titleFormatted": {
+        "de": "Die eingestellte Notstromreserve ist !{{größer|kleiner}} als [[reserve]] [[unit]]",
+        "en": "The set emergency power reserve is !{{larger|smaller}} than [[reserve]] [[unit]]"
+      },
+      "args": [
+        {
+          "type": "number",
+          "name": "reserve",
+          "title": {
+            "de": "Reserve",
+            "en": "Reserve"
+          },
+          "required": true,
+          "min": 0,
+          "step": 1
+        },
+        {
+          "type": "dropdown",
+          "name": "unit",
+          "title": {
+            "en": "Unit",
+            "de": "Einheit"
+          },
+          "required": true,
+          "values": [
+            {
+              "id": "wh",
+              "label": {
+                "de": "Wh",
+                "en": "Wh"
+              }
+            },
+            {
+              "id": "percentage",
+              "label": {
+                "de": "%",
+                "en": "%"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "is_island_mode_active",
+      "title": {
+        "de": "Der Inselbetrieb ist !{{aktiv|nicht aktiv}}",
+        "en": "Island mode is !{{active|not active}}"
+      }
+    },
+    {
+      "id": "is_island_mode_possible",
+      "title": {
+        "de": "Der Inselbetrieb ist !{{möglich|nicht möglich}}",
+        "en": "Island mode is !{{possible|not possible}}"
+      },
+      "hint": {
+        "de": "Prüft ob ein Inselbetrieb möglich ist. Die Karte liefert nur 'Ja' wenn folgende Bedingeungen erfüllt sind: Hauskraftwerk ist nicht im Inselbetrieb. Hauskraftwerk meldet, dass die Notstromfunktion zur Verfügung steht und das Hauskraftwerk muss melden, dass ein Umschalten möglich ist",
+        "en": "Checks whether island operation is possible. The card only returns 'Yes' if the following conditions are met: The home power station is not in stand-alone mode. The home power station reports that the emergency power function is available and the home power station must report that switching is possible"
       }
     }
   ]

@@ -13,7 +13,11 @@ class HomePowerStationDriver extends Homey.Driver {
     portalPassword: '',
     rscpKey: '',
     stationAddress: '',
-    stationPort: 5033
+    stationPort: 5033,
+    batteryInfo: '',
+    customCapacity: 0,
+    rscpCapacity: '0',
+    shouldCapacityOverwritten: false
   }
 
   onPair(session: PairSession): Promise<void> {

@@ -55,7 +55,10 @@
     "requested-min-charging-power-to-low": "The requested maximum discharging power of __REQUESTED__ watts is lower than the permitted minimum of __MIN__ watts of the home power station.",
     "requested-min-charging-power-denied-by-hps": "The home power station has rejected the requested value of maximum discharging power. Response: __RESULTCODE__",
     "activating-of-powerlimits-failed-by-hps": "The home power station has refused to activate the charge/discharge limits. Response: __RESULTCODE__",
-    "deactivating-of-powerlimits-failed-by-hps": "The home power station has refused to deactivate the charge/discharge limits. Response: __RESULTCODE__"
+    "deactivating-of-powerlimits-failed-by-hps": "The home power station has refused to deactivate the charge/discharge limits. Response: __RESULTCODE__",
+    "manual-charge-input-wrong-wh-to-low": "An energy quantity of at least __MIN__Wh must be specified",
+    "manual-charge-rejected-by-hps": "Manual storage tank charging was rejected by the home power station without explanation. A charge may have already been carried out today",
+    "manual-charge-already-running": "A manual charging process is already active"
   },
   "result-code": {
     "SUCCESS": "Successful",

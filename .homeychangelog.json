@@ -8,5 +8,12 @@
   "0.6.0": {
     "de": "- Firmwareversion wird angezeigt\n- WENN Karte: Firmware hat sich geändert\n- Reconnect Problem behoben\n- Lade- und Entladesystem kann vollständig über verschieden WENN, DANN und UND Karten gesteuert werden\n- Vorzeichen für den Batteriestrom wurde geändert. Negative Werte bedeuten, dass die Batterie entladen wird und positive Werte bedeuten, dass die Batterie geladen wird",
     "en": "- Firmware version is displayed\n- IF card: Firmware has changed\n- Reconnect problem fixed\n- Charging and discharging system can be fully controlled via different IF, THEN and AND cards\n- Sign for battery current has been changed. Negative values mean that the battery is being discharged and positive values mean that the battery is being charged"
+  },
+  "0.7.0": {
+    "de": "- Anzeige Restladezeit/Restentladezeit\n- Karten zur Steuerung der Notstromfunktion\n- Neues Device um die Batteriedaten zu überwachen",
+    "en": "- Display of remaining charging time/remaining discharge time\n- Cards for controlling the emergency power function\n- New device to monitor the battery data"
+  },
+  "0.7.1": {
+    "en": "- Fixed wrong charging time"
   }
 }

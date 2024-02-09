@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Max Charging power",
+    "de": "Max Ladeleistung"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "W",
+    "de": "W"
+  },
+  "icon": "/assets/images/battery-load.svg",
+  "insights": true,
+  "decimals": 0
+}

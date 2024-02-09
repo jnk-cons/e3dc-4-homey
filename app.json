@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "0.6.0",
+  "version": "0.7.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -40,6 +40,298 @@
       }
     }
   },
+  "drivers": [
+    {
+      "name": {
+        "en": "Battery monitor",
+        "de": "Batteriemonitor"
+      },
+      "class": "other",
+      "capabilities": [
+        "device_name",
+        "measure_dcbcount",
+        "measure_battery",
+        "measure_capacity",
+        "measure_voltage",
+        "measure_temperature",
+        "measure_temperature_max",
+        "measure_temperature_min",
+        "measure_max_charging_power",
+        "measure_max_discharging_power",
+        "measure_emergency_power_reserve"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/battery-module/assets/images/small.png",
+        "large": "/drivers/battery-module/assets/images/large.png",
+        "xlarge": "/drivers/battery-module/assets/images/xlarge.png"
+      },
+      "energy": {
+        "batteries": [
+          "INTERNAL"
+        ]
+      },
+      "pair": [
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "battery-module"
+    },
+    {
+      "name": {
+        "en": "HPS",
+        "de": "HKW"
+      },
+      "class": "solarpanel",
+      "capabilities": [
+        "measure_pv_delivery",
+        "measure_grid_delivery",
+        "measure_battery_delivery",
+        "measure_house_consumption",
+        "measure_battery",
+        "firmware_version",
+        "charge_time"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/home-power-station/assets/images/small.png",
+        "large": "/drivers/home-power-station/assets/images/large.png",
+        "xlarge": "/drivers/home-power-station/assets/images/xlarge.png"
+      },
+      "energy": {
+        "batteries": [
+          "INTERNAL"
+        ]
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_my_devices"
+          }
+        },
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "connect"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "home-power-station",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection data",
+            "de": "Verbindungsdaten"
+          },
+          "children": [
+            {
+              "id": "portalUsername",
+              "type": "text",
+              "label": {
+                "en": "Portal username",
+                "de": "Portal Benutzer"
+              },
+              "value": "",
+              "hint": {
+                "en": "Username of your E3DC portal user",
+                "de": "Benutzername deines E3DC Portal Users"
+              }
+            },
+            {
+              "id": "portalPassword",
+              "type": "password",
+              "label": {
+                "en": "Portal password",
+                "de": "Portal Passwort"
+              },
+              "value": "",
+              "hint": {
+                "en": "Password to the E3DC portal",
+                "de": "Passwort zum E3DC Portal"
+              }
+            },
+            {
+              "id": "rscpKey",
+              "type": "password",
+              "label": {
+                "en": "RSCP Passwort",
+                "de": "RSCP password"
+              },
+              "value": "",
+              "hint": {
+                "en": "Password of the RSCP connection as entered on the home power station",
+                "de": "Passwort der RSCP Verbindung, wie es am Hauskraftwerk eingetragen wurde"
+              }
+            },
+            {
+              "id": "stationAddress",
+              "type": "text",
+              "label": {
+                "en": "IP",
+                "de": "IP"
+              },
+              "value": "",
+              "hint": {
+                "en": "IP address of the home power station",
+                "de": "IP Adresse des Hauskraftwerks"
+              }
+            },
+            {
+              "id": "stationPort",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "de": "Port"
+              },
+              "value": 5022,
+              "min": 0,
+              "max": 65535,
+              "hint": {
+                "en": "Port of the home power station (should be 5033, or 5034 for farming)",
+                "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Battery information",
+            "de": "Batteriedaten"
+          },
+          "children": [
+            {
+              "id": "rscpCapacity",
+              "type": "label",
+              "label": {
+                "en": "Capacity according to home power station (Wh)",
+                "de": "Kapazität laut Hauskraftwerk (Wh)"
+              },
+              "value": "0",
+              "hint": {
+                "en": "Contains the battery capacity as supplied by the home power station via the interface.",
+                "de": "Enthält die Batteriekapazität, wie sie vom Hauskraftwerk über die Schnittstelle geliefert wird."
+              }
+            },
+            {
+              "id": "shouldCapacityOverwritten",
+              "type": "checkbox",
+              "value": false,
+              "label": {
+                "en": "Use your own capacity value?",
+                "de": "Eigenen Kapazitätswert verwenden?"
+              },
+              "hint": {
+                "en": "If the switch is selected, the self-specified battery capacity is used.",
+                "de": "Wenn der Schalter gewählt ist, wird die selbst angegebene Batteriekapazität verwendet."
+              }
+            },
+            {
+              "id": "customCapacity",
+              "type": "number",
+              "label": {
+                "en": "Own capacity value (Wh)",
+                "de": "Eigener Kapazitätswert (Wh)"
+              },
+              "value": 0,
+              "min": 0,
+              "max": 200000,
+              "hint": {
+                "en": "Self-defined capacity value of the battery. Only used if the corresponding switch has been selected.",
+                "de": "Selbst definierter Kapazitätswert der Batterie. Wird nur verwendet, wenn der entsprechende Schalter ausgewählt wurde."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "HPS - Statistics",
+        "de": "HKW - Statistiken"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "date_range",
+        "measure_pv_summary",
+        "measure_house_consumption_summary",
+        "measure_grid_in",
+        "measure_grid_out",
+        "measure_battery_in",
+        "measure_battery_out",
+        "measure_autarky",
+        "measure_self_consumption"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/summary/assets/images/small.png",
+        "large": "/drivers/summary/assets/images/large.png",
+        "xlarge": "/drivers/summary/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "connect",
+          "navigation": {
+            "next": "list_my_devices"
+          }
+        },
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices",
+            "prev": "connect"
+          },
+          "options": {
+            "singular": true
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "summary"
+    }
+  ],
   "flow": {
     "triggers": [
       {
@@ -139,6 +431,124 @@
             "title": {
               "de": "Neue max. Entladeleistung (W)",
               "en": "New max. discharging power (W)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "manual_battery_charging_started",
+        "title": {
+          "de": "Manuelle Speicherladung gestartet",
+          "en": "Manual battery charging started"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald eine manuelle Speicherladung begonnen wurde",
+          "en": "Is triggered as soon as manual storage loading has been started"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "manual_battery_charging_stopped",
+        "title": {
+          "de": "Manuelle Speicherladung beendet oder gestoppt",
+          "en": "Manual storage charging ended or stopped"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald eine manuelle Speicherladung beendet oder abgebrochen wurde",
+          "en": "Triggered as soon as a manual storage loading is completed or canceled"
+        },
+        "tokens": [
+          {
+            "name": "loadedEnergy",
+            "type": "number",
+            "title": {
+              "de": "geladene Energiemenge (Wh)",
+              "en": "Charged amount of energy (Wh)"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "island_mode_started",
+        "title": {
+          "de": "Inselbetrieb (Notstrom) begonnen",
+          "en": "Island operation (emergency power) started"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald das Hauskraftwerk in den Inselbetrieb umgeschaltet hat. Dies geschieht im Rahmen der Notstromfunktion",
+          "en": "Is triggered as soon as the home power station has switched to stand-alone operation. This is done as part of the emergency power function"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "island_mode_stopped",
+        "title": {
+          "de": "Inselbetrieb (Notstrom) beendet",
+          "en": "Island operation (emergency power) beendet"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald das Hauskraftwerk in den normalen Betrieb zurückgeschaltet hat. Dies geschieht im Rahmen der Notstromfunktion",
+          "en": "Is triggered as soon as the home power station has switched back to normal operation. This is done as part of the emergency power function"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "emergency_power_reserve_has_changed",
+        "title": {
+          "de": "Die Notstromreserve wurde geändert",
+          "en": "The emergency power reserve has been changed"
+        },
+        "hint": {
+          "de": "Wird ausgelöst, sobald sich die eingestellte Notstromreserve geändert hat",
+          "en": "Is triggered as soon as the set emergency power reserve has changed"
+        },
+        "tokens": [
+          {
+            "name": "old",
+            "type": "number",
+            "title": {
+              "de": "Alte Notstromreserve in Wh",
+              "en": "Old emergency power reserve in Wh"
+            }
+          },
+          {
+            "name": "new",
+            "type": "number",
+            "title": {
+              "de": "Neue Notstromreserve in Wh",
+              "en": "New emergency power reserve in Wh"
             }
           }
         ],
@@ -293,6 +703,106 @@
         "title": {
           "de": "Die maximale Ladeleistung und/oder maximale Entladeleistung ist aktuell !{{limitiert|nicht limitiert}}",
           "en": "The maximum charging power and/or the maximum discharging power is currently !{{limited|not limited}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "is_manual_charge_active",
+        "title": {
+          "de": "Eine manuelle Speicherladung ist !{{aktiv|nicht aktiv}}",
+          "en": "Manual battery charging is !{{active|not active}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "is_emergency_power_reserve_greater_than",
+        "title": {
+          "de": "Die eingestellte Notstromreserve ist !{{größer|kleiner}} als",
+          "en": "The set emergency power reserve is !{{larger|smaller}} than"
+        },
+        "titleFormatted": {
+          "de": "Die eingestellte Notstromreserve ist !{{größer|kleiner}} als [[reserve]] [[unit]]",
+          "en": "The set emergency power reserve is !{{larger|smaller}} than [[reserve]] [[unit]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "reserve",
+            "title": {
+              "de": "Reserve",
+              "en": "Reserve"
+            },
+            "required": true,
+            "min": 0,
+            "step": 1
+          },
+          {
+            "type": "dropdown",
+            "name": "unit",
+            "title": {
+              "en": "Unit",
+              "de": "Einheit"
+            },
+            "required": true,
+            "values": [
+              {
+                "id": "wh",
+                "label": {
+                  "de": "Wh",
+                  "en": "Wh"
+                }
+              },
+              {
+                "id": "percentage",
+                "label": {
+                  "de": "%",
+                  "en": "%"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "is_island_mode_active",
+        "title": {
+          "de": "Der Inselbetrieb ist !{{aktiv|nicht aktiv}}",
+          "en": "Island mode is !{{active|not active}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "is_island_mode_possible",
+        "title": {
+          "de": "Der Inselbetrieb ist !{{möglich|nicht möglich}}",
+          "en": "Island mode is !{{possible|not possible}}"
+        },
+        "hint": {
+          "de": "Prüft ob ein Inselbetrieb möglich ist. Die Karte liefert nur 'Ja' wenn folgende Bedingeungen erfüllt sind: Hauskraftwerk ist nicht im Inselbetrieb. Hauskraftwerk meldet, dass die Notstromfunktion zur Verfügung steht und das Hauskraftwerk muss melden, dass ein Umschalten möglich ist",
+          "en": "Checks whether island operation is possible. The card only returns 'Yes' if the following conditions are met: The home power station is not in stand-alone mode. The home power station reports that the emergency power function is available and the home power station must report that switching is possible"
         },
         "args": [
           {
@@ -687,198 +1197,183 @@
             "filter": "driver_id=home-power-station"
           }
         ]
+      },
+      {
+        "id": "start_manual_battery_charging_amount",
+        "title": {
+          "de": "Starte eine manuelle Speicherladung",
+          "en": "Start a manual battery charge"
+        },
+        "titleFormatted": {
+          "de": "Lade [[amount]] Wh zusätzlich in die Batterie",
+          "en": "Charge [[amount]] Wh additionally into the battery"
+        },
+        "hint": {
+          "de": "Es wird ein manueller Ladevorgang gestartet. Es wird die angegebene Energiemenge in Wh zusätzlich zum jetzigen Ladestand geladen (Bis max 100%). Achtung: Bei den meisten Hauskraftwerken kann eine manuelle Speicherladung nur einmal am Tag ausgelöst werden",
+          "en": "A manual charging process is started. The specified amount of energy in Wh is charged in addition to the current charge level (up to max. 100%). Attention: With most home power stations, manual storage charging can only be triggered once a day"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "amount",
+            "title": {
+              "de": "Energiemenge",
+              "en": "Amount of energy"
+            },
+            "required": true,
+            "min": 200,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "start_manual_battery_charging_percentage",
+        "title": {
+          "de": "Lade die Batterie auf",
+          "en": "Charge the battery"
+        },
+        "titleFormatted": {
+          "de": "Lade die Batterie auf annährend [[amount]]% auf",
+          "en": "Charge the battery to approximately [[amount]]%"
+        },
+        "hint": {
+          "de": "Es wird ein manueller Ladevorgang gestartet. Die Batterie wird ca. auf den angegebenen Prozentwert geladen. Achtung: Bei den meisten Hauskraftwerken kann eine manuelle Speicherladung nur einmal am Tag ausgelöst werden",
+          "en": "A manual charging process is started. The battery is charged to approximately the specified percentage value. Attention: With most home power stations, manual storage charging can only be triggered once a day"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "amount",
+            "title": {
+              "de": "Zielladestand",
+              "en": "Target charge level"
+            },
+            "required": true,
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ]
+      },
+      {
+        "id": "stop_manual_battery_charging",
+        "title": {
+          "de": "Stoppt einen manuellen Ladevorgang",
+          "en": "Stops a manual charging process"
+        },
+        "hint": {
+          "de": "Wenn ein manueller Ladevorgang läuft, wird er beim Ausführen dieser Karte gestoppt",
+          "en": "If a manual charging process is running, it is stopped when this card is executed"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
+      },
+      {
+        "id": "configure_emergency_reserve",
+        "title": {
+          "de": "Setzt die Notstromreserve",
+          "en": "Sets the emergency power reserve"
+        },
+        "titleFormatted": {
+          "de": "Setze die Notstromreserve auf [[amount]][[unit]]",
+          "en": "Set the emergency power reserve to [[amount]][[unit]]"
+        },
+        "hint": {
+          "de": "Setzt die Notstromreserve des Hauskraftwerks",
+          "en": "Sets the emergency power reserve of the home power station"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          },
+          {
+            "type": "number",
+            "name": "amount",
+            "title": {
+              "de": "Reserve",
+              "en": "Reserve"
+            },
+            "required": true,
+            "min": 0,
+            "step": 1
+          },
+          {
+            "type": "dropdown",
+            "name": "unit",
+            "title": {
+              "en": "Unit",
+              "de": "Einheit"
+            },
+            "required": true,
+            "values": [
+              {
+                "id": "wh",
+                "label": {
+                  "de": "Wh",
+                  "en": "Wh"
+                }
+              },
+              {
+                "id": "percentage",
+                "label": {
+                  "de": "%",
+                  "en": "%"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "remove_emergency_reserve",
+        "title": {
+          "de": "Entfernt die Notstromreserve",
+          "en": "Removes the emergency power reserve"
+        },
+        "hint": {
+          "de": "Entfernt die Notrstromreserve des Hauskraftwerks. Nach dem Ausführen der Karte steht die gesamte Batteriekapazität zur normalen Energieversorgung zur Verfügung",
+          "en": "Removes the emergency power reserve of the home power station. After executing the card, the entire battery capacity is available for normal energy supply"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=home-power-station"
+          }
+        ]
       }
     ]
   },
-  "drivers": [
-    {
-      "name": {
-        "en": "HPS",
-        "de": "HKW"
-      },
-      "class": "solarpanel",
-      "capabilities": [
-        "measure_pv_delivery",
-        "measure_grid_delivery",
-        "measure_battery_delivery",
-        "measure_house_consumption",
-        "measure_battery",
-        "firmware_version"
-      ],
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "lan"
-      ],
-      "images": {
-        "small": "/drivers/home-power-station/assets/images/small.png",
-        "large": "/drivers/home-power-station/assets/images/large.png",
-        "xlarge": "/drivers/home-power-station/assets/images/xlarge.png"
-      },
-      "energy": {
-        "batteries": [
-          "INTERNAL"
-        ]
-      },
-      "pair": [
-        {
-          "id": "connect",
-          "navigation": {
-            "next": "list_my_devices"
-          }
-        },
-        {
-          "id": "list_my_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_my_devices",
-            "prev": "connect"
-          },
-          "options": {
-            "singular": true
-          }
-        },
-        {
-          "id": "add_my_devices",
-          "template": "add_devices"
-        }
-      ],
-      "id": "home-power-station",
-      "settings": [
-        {
-          "type": "group",
-          "label": {
-            "en": "Connection data",
-            "de": "Verbindungsdaten"
-          },
-          "children": [
-            {
-              "id": "portalUsername",
-              "type": "text",
-              "label": {
-                "en": "Portal username",
-                "de": "Portal Benutzer"
-              },
-              "value": "",
-              "hint": {
-                "en": "Username of your E3DC portal user",
-                "de": "Benutzername deines E3DC Portal Users"
-              }
-            },
-            {
-              "id": "portalPassword",
-              "type": "password",
-              "label": {
-                "en": "Portal password",
-                "de": "Portal Passwort"
-              },
-              "value": "",
-              "hint": {
-                "en": "Passwort zum E3DC Portal",
-                "de": "Passwort zum E3DC Portal"
-              }
-            },
-            {
-              "id": "rscpKey",
-              "type": "password",
-              "label": {
-                "en": "RSCP Passwort",
-                "de": "RSCP password"
-              },
-              "value": "",
-              "hint": {
-                "en": "Password of the RSCP connection as entered on the home power station",
-                "de": "Passwort der RSCP Verbindung, wie es am Hauskraftwerk eingetragen wurde"
-              }
-            },
-            {
-              "id": "stationAddress",
-              "type": "text",
-              "label": {
-                "en": "IP",
-                "de": "IP"
-              },
-              "value": "",
-              "hint": {
-                "en": "IP address of the home power station",
-                "de": "IP Adresse des Hauskraftwerks"
-              }
-            },
-            {
-              "id": "stationPort",
-              "type": "number",
-              "label": {
-                "en": "Port",
-                "de": "Port"
-              },
-              "value": 5022,
-              "min": 0,
-              "max": 65535,
-              "hint": {
-                "en": "Port of the home power station (should be 5033, or 5034 for farming)",
-                "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": {
-        "en": "HPS - Statistics",
-        "de": "HKW - Statistiken"
-      },
-      "class": "sensor",
-      "capabilities": [
-        "date_range",
-        "measure_pv_summary",
-        "measure_house_consumption_summary",
-        "measure_grid_in",
-        "measure_grid_out",
-        "measure_battery_in",
-        "measure_battery_out",
-        "measure_autarky",
-        "measure_self_consumption"
-      ],
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "lan"
-      ],
-      "images": {
-        "small": "/drivers/summary/assets/images/small.png",
-        "large": "/drivers/summary/assets/images/large.png",
-        "xlarge": "/drivers/summary/assets/images/xlarge.png"
-      },
-      "pair": [
-        {
-          "id": "connect",
-          "navigation": {
-            "next": "list_my_devices"
-          }
-        },
-        {
-          "id": "list_my_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_my_devices",
-            "prev": "connect"
-          },
-          "options": {
-            "singular": true
-          }
-        },
-        {
-          "id": "add_my_devices",
-          "template": "add_devices"
-        }
-      ],
-      "id": "summary"
-    }
-  ],
   "capabilities": {
+    "charge_time": {
+      "type": "string",
+      "title": {
+        "en": "Rem. (dis)charging time",
+        "de": "Rest(ent)ladezeit"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/clock.svg",
+      "insights": false
+    },
     "date_range": {
       "type": "string",
       "title": {
@@ -889,6 +1384,18 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/images/date-range.svg",
+      "insights": false
+    },
+    "device_name": {
+      "type": "string",
+      "title": {
+        "en": "Name",
+        "de": "Name"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/badge.svg",
       "insights": false
     },
     "firmware_version": {
@@ -970,6 +1477,53 @@
         "de": "kWh"
       },
       "icon": "/assets/images/battery-unload.svg",
+      "insights": true,
+      "decimals": 1
+    },
+    "measure_capacity": {
+      "type": "number",
+      "title": {
+        "en": "Capacity",
+        "de": "Kapazität"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "kWh",
+        "de": "kWh"
+      },
+      "icon": "/assets/images/capacity.svg",
+      "insights": false,
+      "decimals": 1
+    },
+    "measure_dcbcount": {
+      "type": "number",
+      "title": {
+        "en": "Number of modules",
+        "de": "Modulanzahl"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/counter.svg",
+      "insights": false,
+      "decimals": 0
+    },
+    "measure_emergency_power_reserve": {
+      "type": "number",
+      "title": {
+        "en": "Emergency power reserve",
+        "de": "Notstromreserve"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Wh",
+        "de": "Wh"
+      },
+      "icon": "/assets/images/emergency_power_reserve.svg",
       "insights": true,
       "decimals": 1
     },
@@ -1058,6 +1612,40 @@
       "insights": true,
       "decimals": 1
     },
+    "measure_max_charging_power": {
+      "type": "number",
+      "title": {
+        "en": "Max Charging power",
+        "de": "Max Ladeleistung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/battery-load.svg",
+      "insights": true,
+      "decimals": 0
+    },
+    "measure_max_discharging_power": {
+      "type": "number",
+      "title": {
+        "en": "Max Discharging power",
+        "de": "Max Entladeleistung"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/battery-unload.svg",
+      "insights": true,
+      "decimals": 0
+    },
     "measure_pv_delivery": {
       "type": "number",
       "title": {
@@ -1110,6 +1698,40 @@
       "decimals": 0,
       "min": 0,
       "max": 100
+    },
+    "measure_temperature_max": {
+      "type": "number",
+      "title": {
+        "en": "Max cell temperature",
+        "de": "Max Zelltemperatur"
+      },
+      "units": {
+        "de": "°C",
+        "en": "°C"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/temp_max.svg",
+      "insights": true,
+      "decimals": 0
+    },
+    "measure_temperature_min": {
+      "type": "number",
+      "title": {
+        "en": "Min cell temperature",
+        "de": "Min Zelltemperatur"
+      },
+      "units": {
+        "de": "°C",
+        "en": "°C"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/images/temp_min.svg",
+      "insights": true,
+      "decimals": 0
     }
   }
 }

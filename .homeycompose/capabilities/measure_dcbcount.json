@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Number of modules",
+    "de": "Modulanzahl"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/images/counter.svg",
+  "insights": false,
+  "decimals": 0
+}

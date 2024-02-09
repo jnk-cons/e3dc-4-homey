@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Capacity",
+    "de": "Kapazität"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "kWh",
+    "de": "kWh"
+  },
+  "icon": "/assets/images/capacity.svg",
+  "insights": false,
+  "decimals": 1
+}
