@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Power",
+    "de": "Leistung"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "W",
+    "de": "W"
+  },
+  "icon": "/assets/images/ev-station.svg",
+  "insights": true,
+  "decimals": 0
+}

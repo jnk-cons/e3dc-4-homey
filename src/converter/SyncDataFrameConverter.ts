@@ -4,11 +4,15 @@ import {
     Frame,
     FrameConverter,
     InfoTag,
-    ManualChargeStateConverter
+    ManualChargeStateConverter, WallboxPowerState
 } from 'easy-rscp';
 import {LiveData} from '../model/live-data';
 
 export class SyncDataFrameConverter implements FrameConverter<LiveData> {
+
+    constructor(private wbLiveData: WallboxPowerState[]) {
+    }
+
     convert(frame: Frame): LiveData {
         const chargingConfigConverter = new ChargingConfigurationConverter();
         const manualChargeConverter = new ManualChargeStateConverter()
@@ -26,7 +30,10 @@ export class SyncDataFrameConverter implements FrameConverter<LiveData> {
             firmwareVersion: frame.stringByTag(InfoTag.SW_RELEASE),
             chargingConfig: chargingConfig,
             manualChargeState: manualChargeState,
-            emergencyPowerState: emergencyPowerState
+            emergencyPowerState: emergencyPowerState,
+            wallboxPowerState: this.wbLiveData,
+            wallboxCompleteConsumption: frame.numberByTag(EMSTag.POWER_WB_ALL),
+            wallboxCompleteConsumptionSolarShare: frame.numberByTag(EMSTag.POWER_WB_SOLAR)
         }
     }
 }

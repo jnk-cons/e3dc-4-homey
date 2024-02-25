@@ -61,6 +61,8 @@ import {
 } from '../../src/cards/condition/is-emergency-power-reserve-greater-than.condition.card';
 import {IsIslandModeActiveConditionCard} from '../../src/cards/condition/is-island-mode-active.condition.card';
 import {IsIslandModePossibleConditionCard} from '../../src/cards/condition/is-island-mode-possible.condition.card';
+import {WallboxConfig} from '../../src/model/wallbox.config';
+import {Wallbox} from '../../src/model/wallbox';
 
 const SYNC_INTERVAL = 1000 * 20; // 20 sec
 const MAX_ALLOWED_ERROR_BEFORE_UNAVAILABLE = 5
@@ -375,6 +377,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
             this.handleChargingConfigurationChanges(result);
             this.handleManualChargeStateChanges(result)
             this.handleEmergencyPowerStateChanges(result)
+            this.handleWallbox(result)
             this.handleAvailability();
             this.handleBatteryData(station, result, resolve);
           })
@@ -389,6 +392,40 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
           })
     })
 
+  }
+
+  private handleWallbox(data: LiveData) {
+    if (data.wallboxPowerState.length == 0) {
+      if (this.hasCapability('measure_wallbox_consumption')) {
+        this.removeCapability('measure_wallbox_consumption').then()
+      }
+      if (this.hasCapability('measure_wallbox_solarshare')) {
+        this.removeCapability('measure_wallbox_solarshare').then()
+      }
+    }
+    else {
+      updateCapabilityValue('measure_wallbox_consumption', data.wallboxCompleteConsumption, this)
+      updateCapabilityValue('measure_wallbox_solarshare', data.wallboxCompleteConsumptionSolarShare, this)
+
+      const wallboxDevices = this.homey.drivers.getDriver('wallbox').getDevices()
+      const stationId = this.getId()
+      wallboxDevices.forEach(currentDevice => {
+        const wallboxConfig: WallboxConfig = currentDevice.getStoreValue('settings')
+        if (wallboxConfig.stationId == stationId) {
+          this.log('Updating wallbox device: ' + currentDevice.getName())
+          const wallboxDevice = currentDevice as unknown as Wallbox
+          const relevantData = data.wallboxPowerState.find(value => value.id == wallboxConfig.id)
+
+          if (relevantData != undefined) {
+            wallboxDevice.sync(relevantData)
+          }
+          else {
+            this.log('Unable to find wallbox data for wallbox with id ' + wallboxConfig.id)
+          }
+        }
+      })
+
+    }
   }
 
   private handleChargeTimeCapability(data: LiveData) {

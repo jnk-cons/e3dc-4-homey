@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Solar share",
+    "de": "Solaranteil"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "W",
+    "de": "W"
+  },
+  "icon": "/assets/images/ev-station-solar.svg",
+  "insights": true,
+  "decimals": 0
+}

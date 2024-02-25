@@ -17,10 +17,18 @@ import {
     InfoTag,
     MonthlySummaryConverter,
     RequestChargingConfigurationCreator,
-    ResultCode, SetPowerSettingsCreator,
-    WriteChargingLimitsResult, WriteChargingLimitsResultConverter,
+    ResultCode,
+    SetPowerSettingsCreator,
+    WriteChargingLimitsResult,
+    WriteChargingLimitsResultConverter,
     YearlySummaryConverter,
-    DefaultBatteryService, EPTag, DefaultEmergencyPowerService, EmergencyPowerState
+    DefaultBatteryService,
+    EPTag,
+    DefaultEmergencyPowerService,
+    EmergencyPowerState,
+    WBTag,
+    WallboxInfo,
+    DefaultWallboxService, RequestWallboxIdsCreator, WallboxDeviceIdsConverter, WallboxPowerState
 } from 'easy-rscp';
 import {LiveData} from './model/live-data';
 import {SyncDataFrameConverter} from './converter/SyncDataFrameConverter';
@@ -502,30 +510,43 @@ export class RscpApi {
             this.getOpenConnection(log)
                 .then(con => {
                     log.log('readLiveData: Connection received')
-                    const request= new FrameBuilder()
-                        .addData(
-                            new DataBuilder().tag(EMSTag.REQ_POWER_PV).build(),
-                            new DataBuilder().tag(EMSTag.REQ_POWER_BAT).build(),
-                            new DataBuilder().tag(EMSTag.REQ_POWER_GRID).build(),
-                            new DataBuilder().tag(EMSTag.REQ_POWER_HOME).build(),
-                            new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build(),
-                            new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build(),
-                            new DataBuilder().tag(EMSTag.REQ_GET_POWER_SETTINGS).build(),
-                            new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build(),
-                            new DataBuilder().tag(EMSTag.REQ_GET_MANUAL_CHARGE).build(),
-                            new DataBuilder().tag(EPTag.REQ_EP_RESERVE).build(),
-                            new DataBuilder().tag(EPTag.REQ_IS_POSSIBLE).build(),
-                            new DataBuilder().tag(EPTag.REQ_IS_GRID_CONNECTED).build(),
-                            new DataBuilder().tag(EPTag.REQ_IS_ISLAND_GRID).build(),
-                            new DataBuilder().tag(EPTag.REQ_IS_INVALID_STATE).build(),
-                            new DataBuilder().tag(EPTag.REQ_IS_READY_FOR_SWITCH).build(),
-                        )
-                        .build();
-                    log.log('readLiveData: Sending request frame ...')
-                    con.send(request)
-                        .then(response => {
-                            log.log('readLiveData: Answer received')
-                            resolve(new SyncDataFrameConverter().convert(response))
+                    const wallboxService = new DefaultWallboxService(con)
+                    log.log('readLiveData: Reading connected wallboxes')
+                    wallboxService.readConnectedWallboxes()
+                        .then(value => {
+                            log.log('readLiveData: Reading connected wallboxes -> Answer received. Reading live data')
+                            if (value.length > 0) {
+                                wallboxService.readPowerState(value.map(info => info.id))
+                                    .then(wbStates => {
+                                        this.callLiveData(con, wbStates, allowReconnect, log)
+                                            .then(data => resolve(data))
+                                            .catch(e => this.handleReadSyncDataError(
+                                                allowReconnect,
+                                                e,
+                                                resolve,
+                                                reject,
+                                                log
+                                            ))
+                                    })
+                                    .catch(e => this.handleReadSyncDataError(
+                                        allowReconnect,
+                                        e,
+                                        resolve,
+                                        reject,
+                                        log
+                                    ))
+                            }
+                            else {
+                                this.callLiveData(con, [], allowReconnect, log)
+                                    .then(data => resolve(data))
+                                    .catch(e => this.handleReadSyncDataError(
+                                        allowReconnect,
+                                        e,
+                                        resolve,
+                                        reject,
+                                        log
+                                    ))
+                            }
                         })
                         .catch(e => this.handleReadSyncDataError(
                             allowReconnect,
@@ -544,6 +565,46 @@ export class RscpApi {
                     log
                 ))
         })
+    }
+
+    private callLiveData(con: HomePowerPlantConnection, wbStates: WallboxPowerState[], allowReconnect: boolean, log: Logger): Promise<LiveData> {
+        return new Promise((resolve, reject) => {
+            const request = new FrameBuilder()
+                .addData(
+                    new DataBuilder().tag(EMSTag.REQ_POWER_PV).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_BAT).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_GRID).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_HOME).build(),
+                    new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build(),
+                    new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build(),
+                    new DataBuilder().tag(EMSTag.REQ_GET_POWER_SETTINGS).build(),
+                    new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build(),
+                    new DataBuilder().tag(EMSTag.REQ_GET_MANUAL_CHARGE).build(),
+                    new DataBuilder().tag(EPTag.REQ_EP_RESERVE).build(),
+                    new DataBuilder().tag(EPTag.REQ_IS_POSSIBLE).build(),
+                    new DataBuilder().tag(EPTag.REQ_IS_GRID_CONNECTED).build(),
+                    new DataBuilder().tag(EPTag.REQ_IS_ISLAND_GRID).build(),
+                    new DataBuilder().tag(EPTag.REQ_IS_INVALID_STATE).build(),
+                    new DataBuilder().tag(EPTag.REQ_IS_READY_FOR_SWITCH).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_WB_ALL).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_WB_SOLAR).build(),
+                )
+                .build();
+            log.log('readLiveData: Sending request frame ...')
+            con.send(request)
+                .then(response => {
+                    log.log('readLiveData: Answer received')
+                    resolve(new SyncDataFrameConverter(wbStates).convert(response))
+                })
+                .catch(e => this.handleReadSyncDataError(
+                    allowReconnect,
+                    e,
+                    resolve,
+                    reject,
+                    log
+                ))
+        })
+
     }
 
     private handleReadSyncDataError(
@@ -725,6 +786,129 @@ export class RscpApi {
                 })
                 .catch(e => this.handleWriteEmergencyPowerReserveError(amount, asPercentage, allowReconnect, e, resolve, reject, log))
         })
+    }
+
+    readConnectedWallboxes(allowReconnect: boolean = true, log: Logger): Promise<WallboxInfo[]> {
+        return new Promise<WallboxInfo[]>((resolve, reject) => {
+            const date = new Date()
+            date.setHours(0, 0, 0, 0)
+            log.log('readConnectedWallboxes: Requesting connection ...')
+            this.getOpenConnection(log)
+                .then(con => {
+                    log.log('readConnectedWallboxes: Connection received')
+                    const service = new DefaultWallboxService(con)
+                    service.readConnectedWallboxes()
+                        .then(value => {
+                            log.log('readConnectedWallboxes: Answer received')
+                            resolve(value)
+                        })
+                        .catch(reason => this.handleReadConnectedWallboxesError(
+                            allowReconnect,
+                            reason,
+                            resolve,
+                            reject,
+                            log
+                        ))
+                })
+                .catch(e => this.handleReadConnectedWallboxesError(
+                    allowReconnect,
+                    e,
+                    resolve,
+                    reject,
+                    log
+                ))
+        })
+    }
+
+    private handleReadConnectedWallboxesError(
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: WallboxInfo[] | PromiseLike<WallboxInfo[]>) => void),
+        reject: ((reason?: any) => void),
+        log: Logger,
+
+    ) {
+        if (allowReconnect) {
+            log.log('readConnectedWallboxes: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection(log)
+                .finally(() => {
+                    this.readConnectedWallboxes(false, log)
+                        .then(data => {
+                            log.log('readConnectedWallboxes: Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('readConnectedWallboxes: Retry failed also: ' + e)
+                            reject(e)
+                        })
+                })
+        }
+        else {
+            log.log('readConnectedWallboxes: Received error. Error: ' + causingError)
+            reject(causingError)
+        }
+    }
+
+    readConnectedWallboxIds(allowReconnect: boolean = true, log: Logger): Promise<number[]> {
+        return new Promise<number[]>((resolve, reject) => {
+            const date = new Date()
+            date.setHours(0, 0, 0, 0)
+            log.log('readConnectedWallboxIds: Requesting connection ...')
+            this.getOpenConnection(log)
+                .then(con => {
+                    log.log('readConnectedWallboxIds: Connection received')
+                    const request = new RequestWallboxIdsCreator().create(undefined)
+                    con.send(request)
+                        .then(value => {
+                            log.log('readConnectedWallboxIds: Answer received')
+                            const converted = new WallboxDeviceIdsConverter().convert(value)
+                            resolve(converted)
+                        })
+                        .catch(reason => this.handleReadConnectedWallboxIdsError(
+                            allowReconnect,
+                            reason,
+                            resolve,
+                            reject,
+                            log
+                        ))
+                })
+                .catch(e => this.handleReadConnectedWallboxIdsError(
+                    allowReconnect,
+                    e,
+                    resolve,
+                    reject,
+                    log
+                ))
+        })
+    }
+
+    private handleReadConnectedWallboxIdsError(
+        allowReconnect: boolean,
+        causingError: Error,
+        resolve: ((value: number[] | PromiseLike<number[]>) => void),
+        reject: ((reason?: any) => void),
+        log: Logger,
+
+    ) {
+        if (allowReconnect) {
+            log.log('readConnectedWallboxIds: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            this.closeConnection(log)
+                .finally(() => {
+                    this.readConnectedWallboxIds(false, log)
+                        .then(data => {
+                            log.log('readConnectedWallboxIds: Retry was successfull')
+                            resolve(data)
+                        })
+                        .catch(e => {
+                            log.log('readConnectedWallboxIds: Retry failed also: ' + e)
+                            reject(e)
+                        })
+                })
+        }
+        else {
+            log.log('readConnectedWallboxIds: Received error. Error: ' + causingError)
+            reject(causingError)
+        }
     }
 
 }
