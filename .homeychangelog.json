@@ -19,5 +19,9 @@
   "0.8.0": {
     "de": "- Livedatenanzeige der angeschlossenen Wallboxen",
     "en": "- Live data display of the connected wallboxes"
+  },
+  "1.0.0": {
+    "de": "public release",
+    "en": "public release"
   }
 }

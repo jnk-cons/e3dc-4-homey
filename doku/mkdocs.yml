@@ -1,0 +1,76 @@
+site_name: E3DC 4 Homey
+site_author: Jochen Zink
+site_url: https://github.com/jnk-cons/e3dc-4-homey
+copyright: Copyright &copy; 2024 by, Jochen Zink
+repo_url: https://github.com/jnk-cons/e3dc-4-homey
+nav:
+  - Home: index.md
+  - Setup: setup/setup.md
+  - Homey devices:
+      - HKW/HPS: devices/hps.md
+      - Statistics: devices/statistics.md
+      - Battery: devices/battery.md
+      - Wallbox: devices/wallbox.md
+  - Release Notes: about/release-notes.md
+theme:
+  name: material
+  locale: en
+  features:
+    - search.suggest
+    - navigation.footer
+    - navigation.path
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+plugins:
+  - search
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+      skip_classes:
+        - custom-skip-class-name
+      auto_caption: false
+      caption_position: bottom
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

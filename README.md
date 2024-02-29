@@ -18,3 +18,5 @@ And the best thing about it? The communication between the home power station an
 3. Seect "Profile"
 4. Scroll down and set a RSCP Password
 5. That's it
+
+You can find a detailed documentation [here](https://jnk-cons.github.io/e3dc-4-homey/)

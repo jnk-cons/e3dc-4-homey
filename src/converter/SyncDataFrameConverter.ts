@@ -10,13 +10,13 @@ import {LiveData} from '../model/live-data';
 
 export class SyncDataFrameConverter implements FrameConverter<LiveData> {
 
-    constructor(private wbLiveData: WallboxPowerState[]) {
+    constructor(private wbLiveData: WallboxPowerState[], private sysSpecResponse: Frame) {
     }
 
     convert(frame: Frame): LiveData {
         const chargingConfigConverter = new ChargingConfigurationConverter();
         const manualChargeConverter = new ManualChargeStateConverter()
-        const chargingConfig = chargingConfigConverter.convert(frame)
+        const chargingConfig = chargingConfigConverter.convert(this.sysSpecResponse)
         const manualChargeState = manualChargeConverter.convert(frame)
         const emergencyPowerConverter = new EmergencyPowerStateConverter();
         const emergencyPowerState = emergencyPowerConverter.convert(frame)

@@ -124,5 +124,27 @@
         }
       }
     ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Other",
+      "de": "Sonstiges"
+    },
+    "children": [
+      {
+        "id": "debugMode",
+        "type": "checkbox",
+        "value": false,
+        "label": {
+          "en": "Debug mode",
+          "de": "Debug Modus"
+        },
+        "hint": {
+          "en": "If activated, more information is written to the Homey log. Only activate the switch when prompted if you have reported a problem yourself.",
+          "de": "Wenn aktiviert, werden mehr Informationen in das Log von Homey geschrieben. Aktiviert den Schalter nur nach Aufforderung, wenn ihr selbst ein Problem gemeldet habt."
+        }
+      }
+    ]
   }
 ]

@@ -345,7 +345,6 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     }
     this.api = new RscpApi()
     const storedSettings: PowerStationConfig = this.getSettings();
-    this.log(storedSettings)
     this.api.init({
       address: storedSettings.stationAddress,
       port: storedSettings.stationPort,
@@ -354,7 +353,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       rscpPassword: storedSettings.rscpKey,
       connectionTimeoutMillis: 5000,
       readTimeoutMillis: 5000
-    }, this)
+    }, storedSettings.debugMode, this)
     return this.api
   }
 
@@ -365,8 +364,6 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       station
           .readLiveData(true, this)
           .then(result => {
-            this.log(result)
-
             updateCapabilityValue('measure_pv_delivery', result.pvDelivery, this)
             updateCapabilityValue('measure_grid_delivery', result.gridDelivery, this)
             updateCapabilityValue('measure_battery_delivery', result.batteryDelivery * -1, this)
@@ -621,7 +618,9 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       // @ts-ignore
       rscpPassword: newSettings.rscpKey
     }
-    new RscpApi().init(e3dcData, this)
+    // @ts-ignore
+    const debugMode: boolean  = newSettings.debugMode
+    new RscpApi().init(e3dcData, debugMode, this)
   }
 
   async onRenamed(name: string) {
@@ -633,7 +632,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     if (this.loopId) {
       clearTimeout(this.loopId)
     }
-    new RscpApi().closeConnection(this).then()
+    new RscpApi().closeOwnConnection(this).then()
   }
 
   translate(key: string | Object, tags?: Object | undefined): string {

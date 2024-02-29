@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -31,8 +31,25 @@
   "bugs": {
     "url": "https://github.com/jnk-cons/e3dc-4-homey/issues"
   },
+  "tags": {
+    "en": [
+      "E3DC",
+      "solar panel",
+      "RSCP",
+      "Home power station",
+      "Wallbox"
+    ],
+    "de": [
+      "E3DC",
+      "solar panel",
+      "RSCP",
+      "Hauskraftwerk",
+      "Wallbox"
+    ]
+  },
   "source": "https://github.com/jnk-cons/e3dc-4-homey",
   "support": "mailto:jochen.zink@jnk-consulting.de",
+  "homepage": "https://jnk-cons.github.io/e3dc-4-homey/",
   "contributing": {
     "donate": {
       "paypal": {
@@ -272,6 +289,28 @@
               "hint": {
                 "en": "Self-defined capacity value of the battery. Only used if the corresponding switch has been selected.",
                 "de": "Selbst definierter Kapazitätswert der Batterie. Wird nur verwendet, wenn der entsprechende Schalter ausgewählt wurde."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Other",
+            "de": "Sonstiges"
+          },
+          "children": [
+            {
+              "id": "debugMode",
+              "type": "checkbox",
+              "value": false,
+              "label": {
+                "en": "Debug mode",
+                "de": "Debug Modus"
+              },
+              "hint": {
+                "en": "If activated, more information is written to the Homey log. Only activate the switch when prompted if you have reported a problem yourself.",
+                "de": "Wenn aktiviert, werden mehr Informationen in das Log von Homey geschrieben. Aktiviert den Schalter nur nach Aufforderung, wenn ihr selbst ein Problem gemeldet habt."
               }
             }
           ]

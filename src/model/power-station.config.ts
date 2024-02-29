@@ -7,5 +7,6 @@ export interface PowerStationConfig {
     batteryInfo: string,
     rscpCapacity: string,
     shouldCapacityOverwritten: boolean,
-    customCapacity: number
+    customCapacity: number,
+    debugMode: boolean
 }

@@ -56,7 +56,6 @@ class SummaryDevice extends Homey.Device implements I18n{
               updateCapabilityValue('measure_grid_out', result.gridOut / 1000.0, this)
               updateCapabilityValue('measure_self_consumption', result.selfConsumption * 100, this)
               updateCapabilityValue('measure_autarky', result.selfSufficiency * 100, this)
-              this.log(result)
 
               this.syncErrorCount = 0
               if (!this.getAvailable()) {

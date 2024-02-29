@@ -28,7 +28,11 @@ import {
     EmergencyPowerState,
     WBTag,
     WallboxInfo,
-    DefaultWallboxService, RequestWallboxIdsCreator, WallboxDeviceIdsConverter, WallboxPowerState
+    DefaultWallboxService,
+    RequestWallboxIdsCreator,
+    WallboxDeviceIdsConverter,
+    WallboxPowerState,
+    RSCPRequestResponseListener, RijndaelJsAESCipherFactory, DefaultSocketFactory, DefaultFrameParser
 } from 'easy-rscp';
 import {LiveData} from './model/live-data';
 import {SyncDataFrameConverter} from './converter/SyncDataFrameConverter';
@@ -36,30 +40,60 @@ import {SummaryData} from './model/summary-data';
 import {SummaryType} from './model/summary.config';
 import {Logger} from './internal-api/logger';
 import {BatteryData, DCBData} from './model/battery-data';
+import {LogRscpCommunicationListener} from './utils/log-rscp-communication-listener';
 
-let connection: HomePowerPlantConnection | undefined = undefined
-let connectionFactory: HomePowerPlantConnectionFactory | undefined = undefined
-let connectionData: E3dcConnectionData | undefined = undefined
+const connectionMap: Map<string, HomePowerPlantConnection> = new Map<string, HomePowerPlantConnection>()
+const connectionFactoryMap: Map<string, HomePowerPlantConnectionFactory> = new Map<string, HomePowerPlantConnectionFactory>()
+
 export class RscpApi {
-    init(data: E3dcConnectionData, log: Logger) {
-        connectionData = data
-        connectionFactory = new DefaultHomePowerPlantConnectionFactory(connectionData)
-        this.closeConnection(log).then()
+
+    private connectionData: E3dcConnectionData | undefined = undefined
+
+    init(data: E3dcConnectionData, debugMode: boolean, log: Logger) {
+        if (this.connectionData) {
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log).then()
+        }
+        this.connectionData = data
+        if (debugMode) {
+            const listener: RSCPRequestResponseListener[] = [new LogRscpCommunicationListener(log)]
+            const newFactory = new DefaultHomePowerPlantConnectionFactory(
+                this.connectionData,
+                new RijndaelJsAESCipherFactory(this.connectionData.rscpPassword),
+                new DefaultSocketFactory(),
+                new DefaultFrameParser(),
+                listener
+                )
+            connectionFactoryMap.set(this.getKey(), newFactory)
+        }
+        else {
+            const newFactory = new DefaultHomePowerPlantConnectionFactory(this.connectionData)
+            connectionFactoryMap.set(this.getKey(), newFactory)
+        }
+
     }
 
+    private getKey(): string {
+        return this.connectionData!!.address + ":" + this.connectionData!!.port
+    }
+
+    private getConnectionFactory(): HomePowerPlantConnectionFactory {
+        return connectionFactoryMap.get(this.getKey())!!
+    }
     private getOpenConnection(log: Logger): Promise<HomePowerPlantConnection> {
         return new Promise<HomePowerPlantConnection>((resolve, reject) => {
-            if (connection && connection.isConnected()) {
+            const currentConnection = connectionMap.get(this.getKey())
+            if (currentConnection && currentConnection.isConnected()) {
                 log.log('getOpenConnection: Returning existing connection')
-                resolve(connection)
+                resolve(currentConnection)
             }
             else {
                 log.log('getOpenConnection: Creating new connection')
-                connectionFactory!!.openConnection()
+                this.getConnectionFactory().openConnection()
                     .then(con => {
                         log.log('getOpenConnection: Returning new connection')
-                        connection = con;
-                        resolve(connection)
+                        connectionMap.set(this.getKey(), con);
+                        resolve(con)
                     })
                     .catch(e => {
                         log.error('getOpenConnection: Creating new connection failed')
@@ -70,7 +104,13 @@ export class RscpApi {
         })
     }
 
-    closeConnection(log: Logger):Promise<any> {
+    closeOwnConnection(log: Logger): Promise<any> {
+        const key = this.getKey()
+        const toClose = connectionMap.get(key)
+        return this.closeConnection(toClose, log)
+    }
+
+    closeConnection(connection: HomePowerPlantConnection | undefined, log: Logger):Promise<any> {
         return new Promise((resolve, reject) => {
             if (connection) {
                 log.log('closeConnection: closing connection')
@@ -80,7 +120,6 @@ export class RscpApi {
                     .finally(() => {
                         setTimeout(() => {
                             log.log('closeConnection: Connection closed')
-                            connection = undefined
                             resolve(undefined)
                         }, 2000)
                     })
@@ -88,28 +127,6 @@ export class RscpApi {
             else {
                 resolve(undefined)
             }
-        })
-
-    }
-
-    connectionTest(data: E3dcConnectionData): Promise<string | undefined> {
-        return new Promise<string | undefined>( (resolve, reject) => {
-            const tempConnectionFactory = new DefaultHomePowerPlantConnectionFactory(data)
-            tempConnectionFactory
-                .openConnection()
-                .then(tempConnection => {
-                    const request = new FrameBuilder()
-                        .addData(
-                            new DataBuilder().tag(EMSTag.REQ_POWER_PV).build()
-                        )
-                        .build()
-                    tempConnection
-                        .send(request)
-                        .then(r => resolve(undefined))
-                        .catch(e => resolve(e.toString()))
-                        .finally(() => tempConnection.disconnect().then())
-                })
-                .catch(e => resolve(e.toString()))
         })
     }
 
@@ -279,7 +296,7 @@ export class RscpApi {
                                 .catch(reason => {
                                     log.error('readBatteryData: Failed to read battery status')
                                     log.error(reason)
-                                    this.closeConnection(log).catch(reason1 => {
+                                    this.closeConnection(con, log).catch(reason1 => {
                                         log.error('readBatteryData: failed to close connection')
                                         log.error(reason1)
                                     })
@@ -291,7 +308,7 @@ export class RscpApi {
                             log.error(reason)
                             if (allowReconnect) {
                                 log.error('readBatteryData: Try to reconnect ...')
-                                this.closeConnection(log)
+                                this.closeConnection(con, log)
                                     .then(_ => this.readBatteryData(false, log)
                                         .then(resultAfterReconnect => resolve(resultAfterReconnect))
                                         .catch(reason1 => {
@@ -483,7 +500,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('startManualCharge(' + amountWh + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.startManualCharge(amountWh,false, log)
                         .then(data => {
@@ -577,8 +595,6 @@ export class RscpApi {
                     new DataBuilder().tag(EMSTag.REQ_POWER_HOME).build(),
                     new DataBuilder().tag(EMSTag.REQ_BAT_SOC).build(),
                     new DataBuilder().tag(InfoTag.REQ_SW_RELEASE).build(),
-                    new DataBuilder().tag(EMSTag.REQ_GET_POWER_SETTINGS).build(),
-                    new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build(),
                     new DataBuilder().tag(EMSTag.REQ_GET_MANUAL_CHARGE).build(),
                     new DataBuilder().tag(EPTag.REQ_EP_RESERVE).build(),
                     new DataBuilder().tag(EPTag.REQ_IS_POSSIBLE).build(),
@@ -594,7 +610,25 @@ export class RscpApi {
             con.send(request)
                 .then(response => {
                     log.log('readLiveData: Answer received')
-                    resolve(new SyncDataFrameConverter(wbStates).convert(response))
+                    log.log('readLiveData: Requesting charging spec')
+                    const requestSpec = new FrameBuilder()
+                        .addData(
+                            new DataBuilder().tag(EMSTag.REQ_GET_POWER_SETTINGS).build(),
+                            new DataBuilder().tag(EMSTag.REQ_GET_SYS_SPECS).build(),
+                        )
+                        .build()
+                    con.send(requestSpec)
+                        .then(specResponse => {
+                            log.log('readLiveData: Answer received')
+                            resolve(new SyncDataFrameConverter(wbStates, specResponse).convert(response))
+                        })
+                        .catch(e => this.handleReadSyncDataError(
+                            allowReconnect,
+                            e,
+                            resolve,
+                            reject,
+                            log
+                        ))
                 })
                 .catch(e => this.handleReadSyncDataError(
                     allowReconnect,
@@ -617,7 +651,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readLiveData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.readLiveData(false, log)
                         .then(data => {
@@ -648,7 +683,8 @@ export class RscpApi {
 
         if (allowReconnect) {
             log.log('readSummaryData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.readSummaryData(type, false, log)
                         .then(data => {
@@ -680,7 +716,8 @@ export class RscpApi {
 
         if (allowReconnect) {
             log.log('writeChargingLimits: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.writeChargingLimits(limits, false, log)
                         .then(data => {
@@ -710,7 +747,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readChargingConfiguration: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.readChargingConfiguration( false, log)
                         .then(data => {
@@ -741,7 +779,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.writeEmergencyPowerReserve( amount, asPercentage, false, log)
                         .then(data => {
@@ -830,7 +869,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readConnectedWallboxes: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.readConnectedWallboxes(false, log)
                         .then(data => {
@@ -892,7 +932,8 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readConnectedWallboxIds: Received error. Try to reconnect ... (Error: ' + causingError + ')')
-            this.closeConnection(log)
+            const currentConnection = connectionMap.get(this.getKey())
+            this.closeConnection(currentConnection, log)
                 .finally(() => {
                     this.readConnectedWallboxIds(false, log)
                         .then(data => {
