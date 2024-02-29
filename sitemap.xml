@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/about/release-notes/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/devices/battery/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/devices/hps/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/devices/statistics/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/devices/wallbox/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/jnk-cons/e3dc-4-homey/setup/setup/</loc>
-         <lastmod>2024-02-25</lastmod>
+         <lastmod>2024-02-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
