@@ -31,5 +31,9 @@
   "1.0.2": {
     "de": "- Gefixt: Aktivierung des Debug Modus schlägt fehlt",
     "en": "- Fixed: Activation of debug mode fails"
+  },
+  "1.0.3": {
+    "de": "- Gefixt: Auslesen der Batteriekapazität bei S10X Hauskraftwerken schlägt fehl",
+    "en": "- Fixed: Reading out the battery capacity of S10X home power stations fails"
   }
 }
