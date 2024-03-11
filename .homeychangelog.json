@@ -23,5 +23,13 @@
   "1.0.0": {
     "de": "public release",
     "en": "public release"
+  },
+  "1.0.1": {
+    "de": "- Bug gefixt, dass die Einstellungen beim Hinzufügen des Devices nicht übernommen wurden",
+    "en": "- Bug fixed that the settings were not applied when adding the device"
+  },
+  "1.0.2": {
+    "de": "- Gefixt: Aktivierung des Debug Modus schlägt fehlt",
+    "en": "- Fixed: Activation of debug mode fails"
   }
 }

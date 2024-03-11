@@ -94,6 +94,7 @@ class HomePowerStationDriver extends Homey.Driver {
   }
 
   async onPairListDevices() {
+    this.settings.stationPort = parseInt(this.settings.stationPort.toString())
     return [
       {
         name: 'HPS - ' + this.settings.stationAddress,

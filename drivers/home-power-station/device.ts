@@ -86,6 +86,25 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
   private updateBatteryData = true
   async onInit() {
     this.log('HomePowerStationDevice has been initialized');
+
+    const initialStoredSettings: PowerStationConfig | undefined = this.getStoreValue('settings')
+    if (initialStoredSettings) {
+      initialStoredSettings.stationPort = parseInt(initialStoredSettings.stationPort.toString())
+      this.log('Migrating store to settings')
+      this.setSettings(initialStoredSettings)
+          .then(value => {
+            this.unsetStoreValue('settings').then()
+            this.log('Starting process')
+            this.doInit()
+          })
+    }
+    else {
+      this.log('Starting process without migration')
+     this.doInit()
+    }
+  }
+
+  private doInit() {
     this.setupActionCards()
     this.setupConditionCards()
     this.setupTriggerCards()
@@ -352,7 +371,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       portalPassword: storedSettings.portalPassword,
       rscpPassword: storedSettings.rscpKey,
       connectionTimeoutMillis: 5000,
-      readTimeoutMillis: 5000
+      readTimeoutMillis: 5000,
     }, storedSettings.debugMode, this)
     return this.api
   }
@@ -430,13 +449,9 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
         .then(capacityWh => {
           let targetWh = 0
           if (data.batteryDelivery > 0) {
-            console.log('battery is discharging')
             targetWh = Math.abs(capacityWh * data.batteryChargingLevel)
-            console.log('' + targetWh + 'Wh stored in the battery. capacity: ' + capacityWh + ', level: ' + data.batteryChargingLevel)
           } else {
-            console.log('battery is charging')
             targetWh = Math.abs(capacityWh * (1-data.batteryChargingLevel))
-            console.log('' + targetWh + 'Wh missing to full battery. capacity: ' + capacityWh + ', level: ' + data.batteryChargingLevel)
           }
 
           const minutes =  targetWh / Math.abs(data.batteryDelivery) * 60
@@ -473,9 +488,12 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       station
           .readBatteryData(true, this)
           .then(batteryData => {
-            const storedSettings: PowerStationConfig = this.getSettings()
+            let storedSettings: PowerStationConfig = this.getSettings()
             if (storedSettings.rscpCapacity == '0') {
-              storedSettings.rscpCapacity = batteryData[0].capacity.toString()
+              storedSettings = {
+                ...storedSettings,
+                rscpCapacity: batteryData[0].capacity.toString()
+              }
               this.setSettings(storedSettings).then(value => this.log('Stored RSCP capacity'))
             }
 
@@ -618,9 +636,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
       // @ts-ignore
       rscpPassword: newSettings.rscpKey
     }
-    // @ts-ignore
-    const debugMode: boolean  = newSettings.debugMode
-    new RscpApi().init(e3dcData, debugMode, this)
+    this.api = undefined
   }
 
   async onRenamed(name: string) {
