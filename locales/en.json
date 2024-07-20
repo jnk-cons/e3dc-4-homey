@@ -17,6 +17,9 @@
       },
       "station-port": {
         "title": "Port"
+      },
+      "timeout": {
+        "title": "Timeout (sec)"
       }
     },
     "rscp-info": "ATTENTION: The RSCP connection must first be activated on the home power station. To do this, go to the \"Main menu\", \"Personalization\", \"User profile\". There you can set the RSCP password on the second page and thus activate access.",

@@ -9,6 +9,7 @@
           document.getElementById('rscpkey').value = settings.rscpKey;
           document.getElementById('address').value = settings.stationAddress;
           document.getElementById('port').value = settings.stationPort;
+          document.getElementById('timeout').value = settings.timeout;
       }
   });
 
@@ -19,6 +20,7 @@
         rscpKey: document.getElementById('rscpkey').value,
         stationAddress: document.getElementById('address').value,
         stationPort: document.getElementById('port').value,
+        timeout: document.getElementById('timeout').value,
         debugMode: false
       };
   }
@@ -76,6 +78,10 @@
             <div class="homey-form-group">
                 <label class="homey-form-label" for="port"><span data-i18n="setup.field.station-port.title">Port</span></label>
                 <input class="homey-form-input" id="port" type="number" value="" oninput="settingsChanged()"/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="timeout"><span data-i18n="setup.field.timeout.title">Port</span></label>
+                <input class="homey-form-input" id="timeout" type="number" value="" oninput="settingsChanged()"/>
             </div>
         </fieldset>
     </form>

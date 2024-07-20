@@ -17,6 +17,9 @@
       },
       "station-port": {
         "title": "Port"
+      },
+      "timeout": {
+        "title": "Timeout (Sek)"
       }
     },
     "rscp-info": "ACHTUNG: Die RSCP Verbindung muss an dem Hauskraftwerk erst freigeschaltet werden. Geht dazu ins \"Hautmenü\", \"Personalisierung\", \"Benutzerprofil\". Dort kann auf der zweiten Seite das RSCP Passwort gesetzt und damit der Zugang freigeschaltet werden.",

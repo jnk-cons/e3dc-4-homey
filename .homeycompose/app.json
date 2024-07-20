@@ -1,6 +1,6 @@
 {
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -31,8 +31,20 @@
     "url": "https://github.com/jnk-cons/e3dc-4-homey/issues"
   },
   "tags": {
-    "en": ["E3DC", "solar panel", "RSCP", "Home power station", "Wallbox"],
-    "de": ["E3DC", "solar panel", "RSCP", "Hauskraftwerk", "Wallbox"]
+    "en": [
+      "E3DC",
+      "solar panel",
+      "RSCP",
+      "Home power station",
+      "Wallbox"
+    ],
+    "de": [
+      "E3DC",
+      "solar panel",
+      "RSCP",
+      "Hauskraftwerk",
+      "Wallbox"
+    ]
   },
   "source": "https://github.com/jnk-cons/e3dc-4-homey",
   "support": "mailto:jochen.zink@jnk-consulting.de",

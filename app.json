@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
@@ -240,6 +240,21 @@
               "hint": {
                 "en": "Port of the home power station (should be 5033, or 5034 for farming)",
                 "de": "Port des Hauskraftwerks (Sollte 5033 sein, bzw. 5034 für Farming)"
+              }
+            },
+            {
+              "id": "timeout",
+              "type": "number",
+              "label": {
+                "en": "Timeout",
+                "de": "Timeout"
+              },
+              "value": 5,
+              "min": 5,
+              "max": 30,
+              "hint": {
+                "en": "Timeout in seconds. Maximum waiting time for a response from the home power station in seconds.",
+                "de": "Timeout in Sekunden. Maximale Wartezeit auf eine Antwort vom Hauskraftwerk in Sekunden."
               }
             }
           ]

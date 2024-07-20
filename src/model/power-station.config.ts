@@ -4,6 +4,7 @@ export interface PowerStationConfig {
     rscpKey: string,
     stationAddress: string,
     stationPort: number,
+    timeout?: number,
     batteryInfo: string,
     rscpCapacity: string,
     shouldCapacityOverwritten: boolean,

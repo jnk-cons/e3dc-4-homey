@@ -500,6 +500,7 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('startManualCharge(' + amountWh + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -510,12 +511,14 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('startManualCharge(' + amountWh + ': Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
         }
         else {
             log.log('startManualCharge(' + amountWh + ': Received error. Error: ' + causingError)
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -650,7 +653,8 @@ export class RscpApi {
 
     ) {
         if (allowReconnect) {
-            log.log('readLiveData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log('readLiveData: Received error. Try to reconnect ...')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -661,12 +665,14 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('readLiveData: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
         }
         else {
             log.log('readLiveData: Received error. Error: ' + causingError)
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -682,7 +688,8 @@ export class RscpApi {
     ) {
 
         if (allowReconnect) {
-            log.log('readSummaryData: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log('readSummaryData: Received error. Try to reconnect ... ')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -693,13 +700,15 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('readSummaryData: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
 
         }
         else {
-            log.log('readSummaryData: Received error. Error: ' + causingError)
+            log.log('readSummaryData: Received error.')
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -715,7 +724,8 @@ export class RscpApi {
     ) {
 
         if (allowReconnect) {
-            log.log('writeChargingLimits: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log('writeChargingLimits: Received error. Try to reconnect ...')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -726,13 +736,15 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('writeChargingLimits: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
 
         }
         else {
-            log.log('writeChargingLimits: Received error. Error: ' + causingError)
+            log.log('writeChargingLimits: Received error.')
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -746,7 +758,8 @@ export class RscpApi {
 
     ) {
         if (allowReconnect) {
-            log.log('readChargingConfiguration: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log('readChargingConfiguration: Received error. Try to reconnect ...')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -757,12 +770,14 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('readChargingConfiguration: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
         }
         else {
-            log.log('readChargingConfiguration: Received error. Error: ' + causingError)
+            log.log('readChargingConfiguration: Received error.')
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -778,7 +793,8 @@ export class RscpApi {
 
     ) {
         if (allowReconnect) {
-            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Received error. Try to reconnect ...')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -789,6 +805,7 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('writeEmergencyPowerReserveError(' + amount + ', ' + asPercentage + ': Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
@@ -869,6 +886,7 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readConnectedWallboxes: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -879,12 +897,14 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('readConnectedWallboxes: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
         }
         else {
             log.log('readConnectedWallboxes: Received error. Error: ' + causingError)
+            log.log(causingError)
             reject(causingError)
         }
     }
@@ -932,6 +952,7 @@ export class RscpApi {
     ) {
         if (allowReconnect) {
             log.log('readConnectedWallboxIds: Received error. Try to reconnect ... (Error: ' + causingError + ')')
+            log.log(causingError)
             const currentConnection = connectionMap.get(this.getKey())
             this.closeConnection(currentConnection, log)
                 .finally(() => {
@@ -942,12 +963,14 @@ export class RscpApi {
                         })
                         .catch(e => {
                             log.log('readConnectedWallboxIds: Retry failed also: ' + e)
+                            log.log(e)
                             reject(e)
                         })
                 })
         }
         else {
             log.log('readConnectedWallboxIds: Received error. Error: ' + causingError)
+            log.log(causingError)
             reject(causingError)
         }
     }

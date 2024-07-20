@@ -100,7 +100,7 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     }
     else {
       this.log('Starting process without migration')
-     this.doInit()
+      this.doInit()
     }
   }
 
@@ -364,14 +364,22 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     }
     this.api = new RscpApi()
     const storedSettings: PowerStationConfig = this.getSettings();
+    let timeoutMillis = 5000
+    if (storedSettings.timeout) {
+      timeoutMillis = storedSettings.timeout * 1000
+    }
+    else {
+      storedSettings.timeout = 5
+      this.setSettings(storedSettings).then()
+    }
     this.api.init({
       address: storedSettings.stationAddress,
       port: storedSettings.stationPort,
       portalUser: storedSettings.portalUsername,
       portalPassword: storedSettings.portalPassword,
       rscpPassword: storedSettings.rscpKey,
-      connectionTimeoutMillis: 5000,
-      readTimeoutMillis: 5000,
+      connectionTimeoutMillis: timeoutMillis,
+      readTimeoutMillis: timeoutMillis,
     }, storedSettings.debugMode, this)
     return this.api
   }

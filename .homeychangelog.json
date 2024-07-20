@@ -35,5 +35,9 @@
   "1.0.3": {
     "de": "- Gefixt: Auslesen der Batteriekapazität bei S10X Hauskraftwerken schlägt fehl",
     "en": "- Fixed: Reading out the battery capacity of S10X home power stations fails"
+  },
+  "1.0.4": {
+    "de": "- Die Wartezeit, die die App auf eine Antwort vom Hauskraftwerk antwortet, kann in den Device Einstellungen angepasst werden",
+    "en": "- The time that the app waits for a response from the home power station can be adjusted in the device settings"
   }
 }

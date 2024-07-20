@@ -14,6 +14,7 @@ class HomePowerStationDriver extends Homey.Driver {
     rscpKey: '',
     stationAddress: '',
     stationPort: 5033,
+    timeout: 5,
     batteryInfo: '',
     customCapacity: 0,
     rscpCapacity: '0',
@@ -48,14 +49,17 @@ class HomePowerStationDriver extends Homey.Driver {
         resolve(validationError)
       }
       else {
+        if (this.settings.timeout == undefined) {
+          this.settings.timeout = 5
+        }
         const easyRscpConnectionData: E3dcConnectionData = {
           address: this.settings.stationAddress,
           port: this.settings.stationPort,
           portalUser: this.settings.portalUsername,
           portalPassword: this.settings.portalPassword,
           rscpPassword: this.settings.rscpKey,
-          connectionTimeoutMillis: 5000,
-          readTimeoutMillis: 5000
+          connectionTimeoutMillis: this.settings.timeout * 1000,
+          readTimeoutMillis: this.settings.timeout * 1000
         }
 
         const api = new RscpApi()
@@ -89,6 +93,9 @@ class HomePowerStationDriver extends Homey.Driver {
     }
     if (this.settings.stationPort == null || this.settings.stationPort < 0 || this.settings.stationPort > 65535) {
       return this.homey.__('setup.validation.required', {input: this.homey.__('setup.field.station-port.title')})
+    }
+    if (this.settings.timeout == null || this.settings.timeout < 5 || this.settings.stationPort > 30) {
+      return this.homey.__('setup.validation.required', {input: this.homey.__('setup.field.timeout.title')})
     }
     return undefined
   }
