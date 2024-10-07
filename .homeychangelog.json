@@ -39,5 +39,9 @@
   "1.0.4": {
     "de": "- Die Wartezeit, die die App auf eine Antwort vom Hauskraftwerk antwortet, kann in den Device Einstellungen angepasst werden",
     "en": "- The time that the app waits for a response from the home power station can be adjusted in the device settings"
+  },
+  "1.0.5": {
+    "de": "- Hotfix: Neues Device konnten nicht hinzugefügt werden. Sorry!!",
+    "en": "- Hotfix: New devices could not be added. Sorry!"
   }
 }

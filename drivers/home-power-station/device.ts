@@ -90,6 +90,11 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
     const initialStoredSettings: PowerStationConfig | undefined = this.getStoreValue('settings')
     if (initialStoredSettings) {
       initialStoredSettings.stationPort = parseInt(initialStoredSettings.stationPort.toString())
+      let configuredTimeout = 5
+      if (initialStoredSettings.timeout) {
+        configuredTimeout = parseInt(initialStoredSettings.timeout.toString())
+      }
+      initialStoredSettings.timeout = configuredTimeout
       this.log('Migrating store to settings')
       this.setSettings(initialStoredSettings)
           .then(value => {
