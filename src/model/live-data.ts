@@ -12,5 +12,7 @@ export interface LiveData {
     emergencyPowerState: EmergencyPowerState,
     wallboxPowerState: WallboxPowerState[],
     wallboxCompleteConsumption: number,
-    wallboxCompleteConsumptionSolarShare: number
+    wallboxCompleteConsumptionSolarShare: number,
+    externalPowerConnected: boolean,
+    externalPowerDelivery: number,
 }

@@ -607,6 +607,8 @@ export class RscpApi {
                     new DataBuilder().tag(EPTag.REQ_IS_READY_FOR_SWITCH).build(),
                     new DataBuilder().tag(EMSTag.REQ_POWER_WB_ALL).build(),
                     new DataBuilder().tag(EMSTag.REQ_POWER_WB_SOLAR).build(),
+                    new DataBuilder().tag(EMSTag.REQ_EXT_SRC_AVAILABLE).build(),
+                    new DataBuilder().tag(EMSTag.REQ_POWER_ADD).build(),
                 )
                 .build();
             log.log('readLiveData: Sending request frame ...')

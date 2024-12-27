@@ -72,5 +72,38 @@
     "FORMAT_ERROR": "Anfrage Format Fehlerhaft",
     "AGAIN": "Anfrage später wiederholen",
     "UNKNOWN": "Unbekannt"
+  },
+  "widget": {
+    "consumption": "Verbrauch",
+    "pv-delivery": "PV Leistung",
+    "grid": {
+      "feed-in": "Einspeisung",
+      "purchase": "Netzbezug",
+      "general": "Netzleistung"
+    },
+    "battery": {
+      "charging": "Bat. Laden",
+      "discharging": "Bat. Bezug",
+      "general": "Batterie",
+      "level": "Ladestand"
+    },
+    "wallbox": {
+      "consumption": "Wallbox Verbrauch",
+      "soloar-part": "Solaranteil"
+    },
+    "settings": {
+      "power-plant": "Hauskraftwerk",
+      "visibility": "Sichtbarkeit",
+      "hide-zero": "Elemente ohne Leistung verstecken?",
+      "zero-threshold": "Anzeigegrenze"
+    },
+    "info": {
+      "nothing-to-display": "Alle Elemente sind aktuell ausgeblendet. Überprüfe die Widgetkonfiguration.",
+      "no-plant-id": "Es wurde kein Hauskraftwerk ausgewählt. Wähle ein Hauskraftwerk in den Widgeteinstellungen aus.",
+      "plant-not-found": "Das konfigurierte Hauskraftwerk wurde nicht gefunden. Wähle in den Widgeteinstellungen das gewünschte Hauskraftwerk aus.",
+      "no-plants": "Es sind keine Hauskraftwerke konfiguriert. Füge zunächst ein Hauskraftwerk Device hinzu.",
+      "data-receive-error": "Die Energiedaten konnten nicht gelesen werden"
+    },
+    "external-source": "ext. Quelle"
   }
 }

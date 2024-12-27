@@ -1,0 +1,11 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Debug Log"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "icon": "/assets/images/badge.svg",
+  "insights": false
+}

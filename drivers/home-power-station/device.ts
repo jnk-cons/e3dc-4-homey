@@ -401,6 +401,15 @@ class HomePowerStationDevice extends Homey.Device implements HomePowerStation{
             updateCapabilityValue('measure_battery_delivery', result.batteryDelivery * -1, this)
             updateCapabilityValue('measure_house_consumption', result.houseConsumption, this)
             updateCapabilityValue('measure_battery', result.batteryChargingLevel * 100, this)
+            updateCapabilityValue('external_power_delivery_connected', result.externalPowerConnected, this)
+            if (result.externalPowerConnected) {
+              updateCapabilityValue('measure_external_power_delivery', result.externalPowerDelivery, this)
+            }
+            else {
+              if (this.hasCapability('measure_external_power_delivery')) {
+                this.removeCapability('measure_external_power_delivery').then()
+              }
+            }
             this.handleChargeTimeCapability(result);
             this.handleFirmwareChange(result);
             this.handleChargingConfigurationChanges(result);

@@ -1,0 +1,17 @@
+{
+  "type": "number",
+  "title": {
+    "en": "ext. Source",
+    "de": "ext. Quelle"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "W",
+    "de": "W"
+  },
+  "icon": "/assets/images/external-source.svg",
+  "insights": true,
+  "decimals": 0
+}

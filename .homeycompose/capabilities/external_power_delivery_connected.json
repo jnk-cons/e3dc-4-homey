@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "ext. Source connected",
+    "de": "ext. Quelle angeschlossen"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "icon": "/assets/images/external-source.svg",
+  "insights": false
+}

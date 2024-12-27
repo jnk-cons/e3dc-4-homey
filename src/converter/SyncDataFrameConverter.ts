@@ -20,7 +20,11 @@ export class SyncDataFrameConverter implements FrameConverter<LiveData> {
         const manualChargeState = manualChargeConverter.convert(frame)
         const emergencyPowerConverter = new EmergencyPowerStateConverter();
         const emergencyPowerState = emergencyPowerConverter.convert(frame)
-
+        const externalPowerConnected = frame.numberByTag(EMSTag.EXT_SRC_AVAILABLE) >= 1
+        let externalPower = 0
+        if (externalPowerConnected) {
+            externalPower = frame.numberByTag(EMSTag.POWER_ADD) * -1
+        }
         return {
             pvDelivery: frame.numberByTag(EMSTag.POWER_PV),
             gridDelivery: frame.numberByTag(EMSTag.POWER_GRID),
@@ -33,7 +37,9 @@ export class SyncDataFrameConverter implements FrameConverter<LiveData> {
             emergencyPowerState: emergencyPowerState,
             wallboxPowerState: this.wbLiveData,
             wallboxCompleteConsumption: frame.numberByTag(EMSTag.POWER_WB_ALL),
-            wallboxCompleteConsumptionSolarShare: frame.numberByTag(EMSTag.POWER_WB_SOLAR)
+            wallboxCompleteConsumptionSolarShare: frame.numberByTag(EMSTag.POWER_WB_SOLAR),
+            externalPowerConnected: externalPowerConnected,
+            externalPowerDelivery: externalPower,
         }
     }
 }

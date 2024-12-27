@@ -1,0 +1,401 @@
+<html>
+<head>
+  <style>
+
+    #container {
+      height: 100%;
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: var(--homey-su-3);
+    }
+
+    #info-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #info-message-value {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .grid-item {
+      display: flex;
+      justify-content: center;
+    }
+
+    .grid-item span {
+      display: flex;
+      align-items: center;
+    }
+
+    .grid-title {
+      display: flex;
+      justify-content: start;
+      align-items: start;
+      grid-column: 1 / -1;
+      border-bottom: var(--homey-line);
+    }
+
+    .grid-title span {
+      display: flex;
+      align-items: start;
+      justify-self: start;
+      margin-bottom: var(--homey-su-2);
+    }
+
+    .left {
+      justify-self: start;
+    }
+
+    .right {
+      justify-self: end;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+  </style>
+</head>
+
+<body class="homey-widget-full">
+<div id="info-message" class="homey-widget hidden">
+  <span id="info-message-value">AAA</span>
+</div>
+<div id="container" class="homey-widget" >
+  <div class="grid-title hidden">
+    <span id="grid-title-value" class="homey-text-bold">E3DC</span>
+  </div>
+<!--  <div class="grid-item left">-->
+<!--    <span class="homey-text-regular" >Debug</span>-->
+<!--  </div>-->
+<!--  <div class="grid-item right">-->
+<!--    <span id="debug-value" class="homey-text-medium">453W</span>-->
+<!--  </div>-->
+  <div class="grid-item left consumption hidden">
+    <span class="homey-text-regular" data-i18n="widget.consumption">Hausverbrauch</span>
+  </div>
+  <div class="grid-item right consumption hidden">
+    <span id="consumption-value" class="homey-text-medium">453W</span>
+  </div>
+
+  <div class="grid-item left pv-power hidden">
+    <span class="homey-text-regular" data-i18n="widget.pv-delivery">PV Leistung</span>
+  </div>
+  <div class="grid-item right pv-power hidden">
+    <span id="pv-power-value" class="homey-text-medium">2.312W</span>
+  </div>
+
+  <div class="grid-item left grid hidden">
+    <span id="grid-title" class="homey-text-regular">Einspeisung</span>
+  </div>
+  <div class="grid-item right grid hidden">
+    <span id="grid-value" class="homey-text-medium">300W</span>
+  </div>
+
+  <div class="grid-item left battery hidden">
+    <span id="battery-title" class="homey-text-regular">Bat. Laden</span>
+  </div>
+  <div class="grid-item right battery hidden">
+    <span id="battery-value" class="homey-text-medium">1.559W</span>
+  </div>
+
+  <div class="grid-item left battery-level hidden">
+    <span class="homey-text-regular" data-i18n="widget.battery.level">Bat. Level</span>
+  </div>
+  <div class="grid-item right battery-level hidden">
+    <span id="battery-level-value" class="homey-text-medium">85%</span>
+  </div>
+
+  <div class="grid-item left wallbox wb-consumption hidden">
+    <span class="homey-text-regular" data-i18n="widget.wallbox.consumption">Wallbox Verbrauch</span>
+  </div>
+  <div class="grid-item right wallbox wb-consumption hidden">
+    <span id="wallbox-consumption-value" class="homey-text-medium">0W</span>
+  </div>
+
+  <div class="grid-item left wallbox solar-share hidden">
+    <span class="homey-text-regular" data-i18n="widget.wallbox.solar-part">Wallbox Solaranteil</span>
+  </div>
+  <div class="grid-item right wallbox solar-share hidden">
+    <span id="wallbox-solar-share-value" class="homey-text-medium">0W</span>
+  </div>
+
+  <div class="grid-item left external-source hiddenn">
+    <span class="homey-text-regular" data-i18n="widget.external-source">ext. Quelle</span>
+  </div>
+  <div class="grid-item right external-source hidden">
+    <span id="external-source-value" class="homey-text-medium">0W</span>
+  </div>
+</div>
+<script type="text/javascript">
+
+  const DEFAULT_HEIGHT = 45
+  const HEIGHT_PER_ROW = 39
+  const TITLE_HEIGHT = 45
+  const SYNC_INTERVAL = 1000 * 10
+
+  function onHomeyReady(Homey) {
+    log('onHomeyReady()')
+    setTimeout(() => {
+      log('starting autosync')
+      sync(true)
+              .then(() => {
+                autoSync()
+              })
+    }, 250)
+
+  }
+
+  function log(msg) {
+    Homey.api('POST', '/log', {
+      widget: 'power-overview-' + Homey.getWidgetInstanceId(),
+      message: msg
+    }).then().catch(console.error)
+  }
+
+  function autoSync() {
+    sync(false).then(() => setTimeout(() => autoSync(), SYNC_INTERVAL))
+  }
+
+  async function sync(asInit) {
+    log('starting sync with asInit=' + asInit )
+    return new Promise((resolve, reject) => {
+      readHPS(Homey)
+              .then((result) => {
+                if (result.errorMsg) {
+                  displayMessage(Homey.__(result.errorMsg));
+                  configureHeight(Homey, asInit, DEFAULT_HEIGHT)
+                }
+                else {
+                  const settings = Homey.getSettings();
+                  const visibleRows = update(result, settings, Homey);
+                  if (visibleRows == 0) {
+                    displayMessage(Homey.__('widget.info.nothing-to-display'))
+                    configureHeight(Homey, asInit, DEFAULT_HEIGHT)
+                  } else {
+                    displayData()
+                    let titleOffset = 0
+                    if (settings.deviceNameVisible) {
+                      titleOffset += TITLE_HEIGHT
+                    }
+                    configureHeight(Homey, asInit, (visibleRows * HEIGHT_PER_ROW) + titleOffset)
+
+                  }
+                }
+                resolve(undefined)
+              })
+              .catch((error) => {
+                log('Error on init: ' + JSON.stringify(error))
+                displayMessage(error.toString())
+                configureHeight(Homey, asInit, DEFAULT_HEIGHT)
+                resolve(undefined)
+              })
+    })
+
+  }
+
+  function configureHeight(Homey, asInit, height) {
+    if (asInit) {
+      Homey.ready({height: height});
+    }
+    else {
+      Homey.setHeight(height)
+    }
+  }
+
+  async function readHPS(Homey) {
+    return new Promise(async (resolve, reject) => {
+      const settings = Homey.getSettings()
+      const existingPlants = await Homey.api('GET', '/')
+      log('readHPS answer: ' + JSON.stringify(existingPlants))
+      if (existingPlants.length == 0) {
+        log('readHPS error: no plants configured' )
+        resolve({errorMsg: "widget.info.no-plants"})
+      }
+      else if (settings.plantId == null) {
+        if (existingPlants.length == 1) {
+          log('readHPS: no plant-id is configured but only one HPS device configured. Using that one' )
+          resolve(existingPlants[0])
+        }
+        else {
+          log('readHPS error: no plant-id is configured and multiple HPS devices are available.' )
+          resolve({errorMsg: "widget.info.no-plant-id"})
+        }
+      }
+      else {
+        const device = existingPlants.find(hps => hps.id === settings.plantId.id)
+        if (device == null) {
+          log('readHPS error: configured plant-id is not available in the available devices' )
+          resolve({errorMsg: 'widget.info.plant-not-found'})
+        }
+        else {
+          log('readHPS: Found HPS' )
+          resolve(device)
+        }
+      }
+    });
+
+  }
+
+  function displayData() {
+    const container = document.getElementById('container')
+    if (container.classList.contains('hidden')) {
+      container.classList.remove('hidden')
+    }
+    const info = document.getElementById('info-message')
+    if (!info.classList.contains('hidden')) {
+      info.classList.add('hidden')
+    }
+  }
+
+  function displayMessage(message, Homey) {
+    const container = document.getElementById('container')
+    if (!container.classList.contains('hidden')) {
+      container.classList.add('hidden')
+    }
+    const info = document.getElementById('info-message')
+    if (info.classList.contains('hidden')) {
+      info.classList.remove('hidden')
+    }
+    document.getElementById('info-message-value').innerText = message
+    if (Homey) {
+      Homey.setHeight(100).then()
+    }
+  }
+
+  function hideOrShow(toConfigure, show) {
+    const elements = document.getElementsByClassName(toConfigure)
+    for (let i = 0; i < elements.length; i++) {
+      let element = elements[i]
+      let currentlyVisible = !element.classList.contains('hidden')
+      if (show && !currentlyVisible) {
+        element.classList.remove('hidden')
+      }
+      else if (!show && currentlyVisible) {
+        element.classList.add('hidden')
+      }
+    }
+  }
+
+  function configureVisibility(settings, data) {
+    hideOrShow('grid-title', settings.deviceNameVisible)
+    hideOrShow('consumption', settings.consumptionVisible)
+    hideOrShow('pv-power', settings.pvDeliveryVisible)
+    hideOrShow('grid', settings.gridVisible)
+    hideOrShow('battery', settings.batteryVisible)
+    hideOrShow('battery-level', settings.batteryLevelVisible)
+    hideOrShow('wb-consumption', settings.wallboxConsumptionVisible)
+    hideOrShow('solar-share', settings.solarShareVisible)
+    hideOrShow('external-source', settings.externalSourceVisible)
+    let visibleRows = 0
+    if (settings.consumptionVisible) visibleRows++
+    if (settings.pvDeliveryVisible) visibleRows++
+    if (settings.gridVisible) visibleRows++
+    if (settings.batteryVisible) visibleRows++
+    if (settings.batteryLevelVisible) visibleRows++
+    if (settings.wallboxConsumptionVisible) visibleRows++
+    if (settings.solarShareVisible) visibleRows++
+    if (settings.externalSourceVisible) visibleRows++
+
+    if (!settings.showEmpty) {
+      const threshold = settings.emptyThreshold
+      if (settings.consumptionVisible && Math.abs(data.consumption) <= threshold) {
+        hideOrShow('consumption', false)
+        visibleRows--
+      }
+
+      if (settings.pvDeliveryVisible && Math.abs(data.pvPower) <= threshold) {
+        hideOrShow('pv-power', false)
+        visibleRows--
+      }
+
+      if (settings.gridVisible && Math.abs(data.gridPower) <= threshold) {
+        hideOrShow('grid', false)
+        visibleRows--
+      }
+
+      if (settings.batteryVisible && Math.abs(data.batteryPower) <= threshold) {
+        hideOrShow('battery', false)
+        visibleRows--
+      }
+
+      if (settings.batteryLevelVisible && data.batteryLevel <= 0) {
+        hideOrShow('battery-level', false)
+        visibleRows--
+      }
+
+      if (settings.wallboxConsumptionVisible && Math.abs(data.wallboxPower) <= threshold) {
+        hideOrShow('wb-consumption', false)
+        visibleRows--
+      }
+
+      if (settings.solarShareVisible && Math.abs(data.wallboxSolarShare) <= threshold) {
+        hideOrShow('solar-share', false)
+        visibleRows--
+      }
+      if (settings.solarShareVisible && Math.abs(data.wallboxSolarShare) <= threshold) {
+        hideOrShow('solar-share', false)
+        visibleRows--
+      }
+      if (data.externalPower == null || (settings.externalSourceVisible && Math.abs(data.externalPower) <= threshold)) {
+        hideOrShow('external-source', false)
+        visibleRows--
+      }
+    }
+    else {
+      if (data.externalPower == null) {
+        hideOrShow('external-source', false)
+        visibleRows--
+      }
+    }
+
+
+    return visibleRows
+  }
+
+  function updateValues(data, Homey) {
+    document.querySelector('#consumption-value').innerText = '' + data.consumption + ' W';
+    document.querySelector('#pv-power-value').innerText = '' + data.pvPower + ' W';
+    document.querySelector('#grid-value').innerText = '' + Math.abs(data.gridPower) + ' W';
+    if (data.gridPower > 0) {
+      document.querySelector('#grid-title').innerText = Homey.__('widget.grid.feed-in');
+    }
+    else if (data.gridPower < 0) {
+      document.querySelector('#grid-title').innerText = Homey.__('widget.grid.purchase');
+    }
+    else {
+      document.querySelector('#grid-title').innerText = Homey.__('widget.grid.general');
+    }
+
+    document.querySelector('#battery-value').innerText = '' + Math.abs(data.batteryPower) + ' W';
+    if (data.batteryPower > 0) {
+      document.querySelector('#battery-title').innerText = Homey.__('widget.battery.charging');
+    }
+    else if (data.batteryPower < 0) {
+      document.querySelector('#battery-title').innerText = Homey.__('widget.battery.discharging');
+    }
+    else {
+      document.querySelector('#battery-title').innerText = Homey.__('widget.battery.general');
+    }
+
+    document.querySelector('#battery-level-value').innerText = '' + Math.round(data.batteryLevel) + ' %';
+
+    document.querySelector('#wallbox-consumption-value').innerText = '' + data.wallboxPower + ' W';
+    document.querySelector('#wallbox-solar-share-value').innerText = '' + data.wallboxSolarShare + ' W';
+    document.querySelector('#external-source-value').innerText = '' + data.externalPower + ' W';
+  }
+
+  function update(hps, settings, Homey) {
+    document.querySelector('#grid-title-value').innerText = hps.name;
+    updateValues(hps.powerState, Homey)
+    const visibleRows = configureVisibility(settings, hps.powerState)
+    return visibleRows
+  }
+</script>
+</body>
+</html>

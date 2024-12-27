@@ -1,0 +1,15 @@
+#container {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 12px;
+}
+
+.grid-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-item .icon {
+    margin-right: 4px;
+}

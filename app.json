@@ -2,7 +2,7 @@
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "de.jnkconsulting.e3dc.v2",
   "version": "1.0.5",
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=12.1.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
   "platforms": [
@@ -1455,6 +1455,145 @@
       }
     ]
   },
+  "widgets": {
+    "power-overview": {
+      "name": {
+        "en": "Overview",
+        "de": "Übersicht"
+      },
+      "transparent": false,
+      "settings": [
+        {
+          "id": "plantId",
+          "type": "autocomplete",
+          "title": {
+            "de": "Hauskraftwerk",
+            "en": "Home power plant"
+          }
+        },
+        {
+          "id": "deviceNameVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Device Name sichtbar",
+            "en": "Device name visible"
+          }
+        },
+        {
+          "id": "consumptionVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Verbrauch sichtbar",
+            "en": "Consumption visible"
+          }
+        },
+        {
+          "id": "pvDeliveryVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "PV Leistung sichtbar",
+            "en": "PV power visible"
+          }
+        },
+        {
+          "id": "gridVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Netzleistung sichtbar",
+            "en": "Grid power visible"
+          }
+        },
+        {
+          "id": "batteryVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Batterie sichtbar",
+            "en": "Battery power visible"
+          }
+        },
+        {
+          "id": "batteryLevelVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Ladestand sichtbar",
+            "en": "Battery level visible"
+          }
+        },
+        {
+          "id": "wallboxConsumptionVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Wallbox Verbrauch sichtbar",
+            "en": "Wallbox consumption visible"
+          }
+        },
+        {
+          "id": "solarShareVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Solaranteil (Wallbox) sichtbar",
+            "en": "Solar share (wallbox) visible"
+          }
+        },
+        {
+          "id": "externalSourceVisible",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "ext. Quelle sichtbar",
+            "en": "ext. source visible"
+          }
+        },
+        {
+          "id": "showEmpty",
+          "type": "checkbox",
+          "value": true,
+          "title": {
+            "de": "Elemente ohne Leistung anzeigen?",
+            "en": "Display elements without power?"
+          },
+          "hint": {
+            "de": "Wenn angewählt, werden auch Elemente angezeigt, die aktuell keinen Leistungswert haben (Zum Beispiel eine gerade nicht genutzte Wallbox).",
+            "en": "If selected, elements that currently have no power value are also displayed (for example, a wallbox that is not currently in use)."
+          }
+        },
+        {
+          "id": "emptyThreshold",
+          "type": "number",
+          "value": 10,
+          "min": 0,
+          "max": 1000,
+          "title": {
+            "de": "Min. Leistung",
+            "en": "Min. Power"
+          },
+          "hint": {
+            "de": "Wenn 'Elemente ohne Leistung anzeigen' abgewählt ist, kann hier die Grenze eingestellt werden, ab wann ein Element als 'ohne Leistung' Erkannt wird. Einige Hauskraftwerke zeigen eine geringe, dauerhafte Entladung der Batterie an. Um so etwas auszublenden, kann man diese Grenze einfach über den Wert einstellen.",
+            "en": "If 'Display elements without power' is deselected, the limit can be set here for when an element is recognized as 'without power'. Some home power stations display a low, permanent discharge of the battery. To hide something like this, you can simply set this limit via the value."
+          }
+        }
+      ],
+      "api": {
+        "readHomePowerPlants": {
+          "method": "GET",
+          "path": "/"
+        },
+        "log": {
+          "method": "POST",
+          "path": "/log"
+        }
+      },
+      "id": "power-overview"
+    }
+  },
   "capabilities": {
     "charge_time": {
       "type": "string",
@@ -1480,6 +1619,17 @@
       "icon": "/assets/images/date-range.svg",
       "insights": false
     },
+    "debug_log": {
+      "type": "string",
+      "title": {
+        "en": "Debug Log"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "icon": "/assets/images/badge.svg",
+      "insights": false
+    },
     "device_name": {
       "type": "string",
       "title": {
@@ -1490,6 +1640,18 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/images/badge.svg",
+      "insights": false
+    },
+    "external_power_delivery_connected": {
+      "type": "boolean",
+      "title": {
+        "en": "ext. Source connected",
+        "de": "ext. Quelle angeschlossen"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "icon": "/assets/images/external-source.svg",
       "insights": false
     },
     "firmware_version": {
@@ -1620,6 +1782,23 @@
       "icon": "/assets/images/emergency_power_reserve.svg",
       "insights": true,
       "decimals": 1
+    },
+    "measure_external_power_delivery": {
+      "type": "number",
+      "title": {
+        "en": "ext. Source",
+        "de": "ext. Quelle"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "W",
+        "de": "W"
+      },
+      "icon": "/assets/images/external-source.svg",
+      "insights": true,
+      "decimals": 0
     },
     "measure_grid_delivery": {
       "type": "number",

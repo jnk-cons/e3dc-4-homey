@@ -1,7 +1,7 @@
 {
   "id": "de.jnkconsulting.e3dc.v2",
   "version": "1.0.5",
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=12.1.0",
   "sdk": 3,
   "brandColor": "#7AB31B",
   "platforms": [

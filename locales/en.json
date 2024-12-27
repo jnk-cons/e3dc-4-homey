@@ -70,5 +70,38 @@
     "FORMAT_ERROR": "Request Format Incorrect",
     "AGAIN": "Repeat request later",
     "UNKNOWN": "Unknown"
+  },
+  "widget": {
+    "consumption": "Consumption",
+    "pv-delivery": "PV power",
+    "grid": {
+      "feed-in": "Feed in",
+      "purchase": "Power purchase",
+      "general": "Grid power"
+    },
+    "battery": {
+      "charging": "Bat. charging",
+      "discharging": "Bat. discharging",
+      "general": "Battery",
+      "level": "Charge level"
+    },
+    "wallbox": {
+      "consumption": "Wallbox consumption",
+      "soloar-part": "Solar share"
+    },
+    "settings": {
+      "power-plant": "Power plant",
+      "visibility": "Visibility",
+      "hide-zero": "Hide elements without power?",
+      "zero-threshold": "Power threshold"
+    },
+    "info": {
+      "nothing-to-display": "All elements are currently hidden. Check the widget configuration.",
+      "no-plant-id": "No home power station has been selected. Select a home power station in the widget settings.",
+      "plant-not-found": "The configured home power station was not found. Select the desired home power station in the widget settings.",
+      "no-plants": "No home power stations are configured. First add a home power station device.",
+      "data-receive-error": "The energy data could not be read."
+    },
+    "external-source": "ext. source"
   }
 }
