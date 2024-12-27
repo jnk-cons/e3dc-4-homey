@@ -367,7 +367,7 @@
         "en": "Charge the battery"
       },
       "titleFormatted": {
-        "de": "Lade die Batterie auf annährend [[amount]]% auf",
+        "de": "Lade die Batterie bis ca. [[amount]]%",
         "en": "Charge the battery to approximately [[amount]]%"
       },
       "hint": {
