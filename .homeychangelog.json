@@ -43,5 +43,9 @@
   "1.0.5": {
     "de": "- Hotfix: Neues Device konnten nicht hinzugefügt werden. Sorry!!",
     "en": "- Hotfix: New devices could not be added. Sorry!"
+  },
+  "1.1.0": {
+    "de": "- Unterstützung für externe Quellen\n- einfaches Übersichtswidget\n- Typos in der deutschen Übersetzung behoben",
+    "en": "- Added support for external sources\n- simple overview widget\n- Fixed typos in the German translation"
   }
 }
